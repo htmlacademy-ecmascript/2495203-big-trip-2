@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Алексей Соломин](https://up.htmlacademy.ru/ecmascript-individual/2/user/2495203).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Пальчук](https://htmlacademy.ru/profile/bulletok).
 
 ---
 
