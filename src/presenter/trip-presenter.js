@@ -11,16 +11,9 @@ export default class TripPresenter {
     this.tripPointsListComponent = new TripPointsListView();
     this.tripPointsListPresenter = new TripPointsListPresenter({
       listElement: this.tripPointsListComponent.getElement(),
-      pointsModel: this.pointsModel.getTripPoints()
+      pointsModel: this.pointsModel
     });
   }
-
-  sortComponent = new SortView();
-  tripPointsListComponent = new TripPointsListView();
-  tripPointsListPresenter = new TripPointsListPresenter({
-    listElement: this.tripPointsListComponent.getElement(),
-    pointsModel: this.pointsModel
-  });
 
   init() {
     render(this.sortComponent, this.tripContainer);

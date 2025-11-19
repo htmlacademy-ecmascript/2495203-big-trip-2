@@ -78,3 +78,11 @@ export function formatDateDifference(start, end) {
 
   return resultDifferenceTime;
 }
+
+export function formatAddingFormDate(date) {
+  return dayjs(date).format('DD/MM/YYYY HH:mm');
+}
+
+export function capitalizeFirstLetter(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
