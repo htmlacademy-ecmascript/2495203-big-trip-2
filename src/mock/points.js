@@ -14,7 +14,7 @@ const mockPoints = [
   {
     type: getRandomArrayElement(pointTypes),
     destination: getRandomArrayElement(cities),
-    startDate: new Date('2025-11-19 11:30'),
+    startDate: new Date('2025-10-19 11:30'),
     endDate: new Date('2025-11-19 12:30'),
     price: 1200,
     isFavorite: true,

@@ -1,5 +1,4 @@
 import {createElement} from '../render.js';
-import {capitalizeFirstLetter, formatAddingFormDate} from '../utils.js';
 
 function getPhotosList(photos) {
   return (
@@ -12,6 +11,7 @@ function getPhotosList(photos) {
     </div>`
   );
 }
+
 function getOffers(offersData) {
   return (
     `<div class="event__available-offers">
@@ -28,6 +28,7 @@ function getOffers(offersData) {
     </div>`
   );
 }
+
 function getCitySuggestions(cities) {
   return (
     `<datalist id="destination-list-1">
@@ -43,10 +44,10 @@ function getEventTypesListTemplate(pointTypes) {
     `<div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
-          ${pointTypes.map(({name}) => `
+          ${pointTypes.map(({name, capitalizedName}) => `
           <div class="event__type-item">
             <input id="event-type-${name}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${name}">
-            <label class="event__type-label  event__type-label--${name}" for="event-type-${name}-1">${capitalizeFirstLetter(name)}</label>
+            <label class="event__type-label  event__type-label--${name}" for="event-type-${name}-1">${capitalizedName}</label>
           </div>
           `).join('')}
         </fieldset>
@@ -78,10 +79,10 @@ function getAddTripPointFormTemplate({blankPoint, pointTypes, cities}) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatAddingFormDate(blankPoint.startDate)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${blankPoint.formattedStartDate}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatAddingFormDate(blankPoint.endDate)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${blankPoint.formattedEndDate}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">

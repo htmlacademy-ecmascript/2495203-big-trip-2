@@ -12,8 +12,8 @@ export default class TripPointsListPresenter {
 
   init() {
     render(this.addingFormComponent, this.listElement);
-    this.pointsData.forEach((modelItem) => {
-      render(new TripPointView(modelItem), this.listElement);
+    this.pointsData.forEach((pointData) => {
+      render(new TripPointView(pointData), this.listElement);
     });
   }
 }

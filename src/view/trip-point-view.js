@@ -1,10 +1,4 @@
 import {createElement} from '../render';
-import {
-  getTripPointFormattedDate,
-  getHTMLDatetime,
-  getTime,
-  formatDateDifference
-} from '../utils';
 
 function getOffersTemplate(offersData) {
   return (
@@ -22,18 +16,18 @@ function getOffersTemplate(offersData) {
 function getTripPointTemplate(pointData) {
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="${getHTMLDatetime(pointData.startDate)}">${getTripPointFormattedDate(pointData.startDate)}</time>
+                <time class="event__date" datetime="${pointData.htmlStartDate}">${pointData.formattedDate}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${pointData.type.name} ${pointData.destination.cityName}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${pointData.startDate.toISOString()}">${getTime(pointData.startDate)}</time>
+                    <time class="event__start-time" datetime="${pointData.startDateISO}">${pointData.startTime}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${pointData.endDate.toISOString()}">${getTime(pointData.endDate)}</time>
+                    <time class="event__end-time" datetime="${pointData.endDateISO}">${pointData.endTime}</time>
                   </p>
-                  <p class="event__duration">${formatDateDifference(pointData.startDate, pointData.endDate)}</p>
+                  <p class="event__duration">${pointData.duration}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${pointData.price}</span>
@@ -55,12 +49,12 @@ function getTripPointTemplate(pointData) {
 }
 
 export default class TripPointView {
-  constructor(pointModel) {
-    this.pointModel = pointModel;
+  constructor(pointData) {
+    this.pointData = pointData;
   }
 
   getTemplate() {
-    return getTripPointTemplate(this.pointModel);
+    return getTripPointTemplate(this.pointData);
   }
 
   getElement() {

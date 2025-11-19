@@ -1,7 +1,7 @@
 const blankPoint = {
   type: {
     id: 5,
-    name: 'Flight',
+    name: 'flight',
     options: [
       {
         id: 16,
