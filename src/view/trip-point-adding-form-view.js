@@ -114,7 +114,6 @@ function getAddTripPointFormTemplate({blankPoint, pointTypes, cities}) {
 }
 
 export default class TripPointAddingFormView extends AbstractView {
-  #pointsModel = null;
   #cities = null;
   #pointTypes = null;
   #blankPointData = null;
