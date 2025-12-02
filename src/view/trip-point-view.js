@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function getOffersTemplate(offersData) {
   return (
@@ -48,23 +48,31 @@ function getTripPointTemplate(pointData) {
             </li>`;
 }
 
-export default class TripPointView {
-  constructor(pointData) {
-    this.pointData = pointData;
+export default class TripPointView extends AbstractView {
+  #pointData = null;
+  #pointTypes = null;
+  #editButton = null;
+  #cities = null;
+  #handleEditClick = null;
+
+  constructor({pointData, pointTypes, cities, onEditClick}) {
+    super();
+    this.#pointData = pointData;
+    this.#pointTypes = pointTypes;
+    this.#cities = cities;
+    this.#handleEditClick = onEditClick;
+
+    this.#editButton = this.element.querySelector('.event__rollup-btn');
+
+    this.#editButton.addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return getTripPointTemplate(this.pointData);
+  get template() {
+    return getTripPointTemplate(this.#pointData);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }

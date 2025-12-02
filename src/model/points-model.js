@@ -8,28 +8,46 @@ import {
   getTime,
   formatDateDifference,
   capitalizeFirstLetter,
-  formatAddingFormDate
+  formatFormDate
 } from '../utils.js';
 
-
 export default class PointsModel {
-  tripPoints = mockPoints;
-  blankPoint = blankPoint;
-  pointTypes = pointTypes;
-  cities = cities;
+  #tripPoints = mockPoints;
+  #blankPoint = blankPoint;
+  #pointTypes = pointTypes;
+  #cities = cities;
+  #adaptedPointsData = null;
+  #adaptedBlankPointData = null;
+  #adaptedPointTypesData = null;
 
   constructor() {
     this.init();
   }
 
-  init() {
-    this.adaptPointsData();
-    this.adaptBlankPointData();
-    this.adaptPointTypesData();
+  get tripPoints() {
+    return this.#adaptedPointsData;
   }
 
-  adaptPointsData() {
-    const tripPointsData = structuredClone(this.tripPoints);
+  get blankPoint() {
+    return this.#adaptedBlankPointData;
+  }
+
+  get pointTypes() {
+    return this.#adaptedPointTypesData;
+  }
+
+  get cities() {
+    return structuredClone(this.#cities);
+  }
+
+  init() {
+    this.#adaptPointsData();
+    this.#adaptBlankPointData();
+    this.#adaptPointTypesData();
+  }
+
+  #adaptPointsData() {
+    const tripPointsData = structuredClone(this.#tripPoints);
     tripPointsData.forEach((pointData) => {
       pointData.formattedDate = getTripPointFormattedDate(pointData.startDate);
       pointData.startDateISO = pointData.startDate.toISOString();
@@ -39,39 +57,25 @@ export default class PointsModel {
       pointData.duration = formatDateDifference(pointData.startDate, pointData.endDate);
       pointData.startTime = getTime(pointData.startDate);
       pointData.endTime = getTime(pointData.endDate);
+      pointData.formStartDate = formatFormDate(pointData.startDate);
+      pointData.formEndDate = formatFormDate(pointData.endDate);
     });
-    this.adaptedPointsData = tripPointsData;
+    this.#adaptedPointsData = tripPointsData;
   }
 
-  adaptBlankPointData() {
-    const blankPointData = structuredClone(this.blankPoint);
+  #adaptBlankPointData() {
+    const blankPointData = structuredClone(this.#blankPoint);
     blankPointData.type.capitalizedName = capitalizeFirstLetter(blankPointData.type.name);
-    blankPointData.formattedStartDate = formatAddingFormDate(blankPointData.startDate);
-    blankPointData.formattedEndDate = formatAddingFormDate(blankPointData.endDate);
-    this.adaptedBlankPointData = blankPointData;
+    blankPointData.formattedStartDate = formatFormDate(blankPointData.startDate);
+    blankPointData.formattedEndDate = formatFormDate(blankPointData.endDate);
+    this.#adaptedBlankPointData = blankPointData;
   }
 
-  adaptPointTypesData() {
-    const pointTypesData = structuredClone(this.pointTypes);
+  #adaptPointTypesData() {
+    const pointTypesData = structuredClone(this.#pointTypes);
     pointTypesData.forEach((typeData) => {
       typeData.capitalizedName = capitalizeFirstLetter(typeData.name);
     });
-    this.adaptedPointTypesData = pointTypesData;
-  }
-
-  getTripPoints() {
-    return this.adaptedPointsData;
-  }
-
-  getBlankPoint() {
-    return this.adaptedBlankPointData;
-  }
-
-  getPointTypes() {
-    return this.adaptedPointTypesData;
-  }
-
-  getCities() {
-    return structuredClone(this.cities);
+    this.#adaptedPointTypesData = pointTypesData;
   }
 }
