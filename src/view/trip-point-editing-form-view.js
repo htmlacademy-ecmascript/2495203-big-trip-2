@@ -20,6 +20,7 @@ function getOffersTemplate(offers) {
     </section>`
   );
 }
+
 function getCitiesSuggestions(cities) {
   return (
     `<datalist id="destination-list-1">
@@ -29,6 +30,7 @@ function getCitiesSuggestions(cities) {
     </datalist>`
   );
 }
+
 function getTypesTemplate(types) {
   return (
     `<div class="event__type-list">
@@ -45,6 +47,7 @@ function getTypesTemplate(types) {
       </div>`
   );
 }
+
 function getEditTripPointFormTemplate(pointData, types, cities) {
   return (
     `<li class="trip-events__item">
@@ -107,14 +110,37 @@ export default class TripPointEditingFormView extends AbstractView {
   #pointData = null;
   #pointTypes = null;
   #cities = null;
-  constructor({pointData, pointTypes, cities}) {
+  #form = null;
+  #rollupButton = null;
+  #handleFormSubmit = null;
+  #handleRollupButtonClick = null;
+
+  constructor({pointData, pointTypes, cities, onFormSubmit, onRollupButtonClick}) {
     super();
     this.#pointData = pointData;
     this.#pointTypes = pointTypes;
     this.#cities = cities;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleRollupButtonClick = onRollupButtonClick;
+
+    this.#form = this.element.querySelector('form');
+    this.#rollupButton = this.element.querySelector('.event__rollup-btn');
+
+    this.#form.addEventListener('submit', this.#formSubmitHandler);
+    this.#rollupButton.addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {
     return getEditTripPointFormTemplate(this.#pointData, this.#pointTypes, this.#cities);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
 }

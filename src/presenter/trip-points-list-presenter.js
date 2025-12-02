@@ -1,6 +1,10 @@
-import {render} from '../framework/render.js';
+import {
+  render,
+  replace
+} from '../framework/render.js';
 import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import TripPointView from '../view/trip-point-view.js';
+import TripPointEditingFormView from '../view/trip-point-editing-form-view.js';
 
 export default class TripPointsListPresenter {
   #listElement = null;
@@ -28,13 +32,51 @@ export default class TripPointsListPresenter {
     this.#renderPoints(this.#pointsData);
   }
 
+
   #renderPoints(pointsData) {
     pointsData.forEach((pointData) => {
-      render(new TripPointView({
-        pointData,
-        pointTypes: this.#pointTypes,
-        cities: this.#cities
-      }), this.#listElement);
+      this.#renderPoint(pointData);
     });
+  }
+
+  #renderPoint(pointData) {
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+
+    const pointComponent = new TripPointView({
+      pointData,
+      pointTypes: this.#pointTypes,
+      cities: this.#cities,
+      onEditClick: () => {
+        replacePointToForm();
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
+    });
+
+    const editFormComponent = new TripPointEditingFormView({
+      pointData,
+      pointTypes: this.#pointTypes,
+      cities: this.#cities,
+      onFormSubmit: replaceFormToPoint,
+      onRollupButtonClick: () => {
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    });
+
+    function replacePointToForm() {
+      replace(editFormComponent, pointComponent);
+    }
+
+    function replaceFormToPoint() {
+      replace(pointComponent, editFormComponent);
+    }
+
+    render(pointComponent, this.#listElement);
   }
 }
