@@ -8,8 +8,10 @@ import {
   getTime,
   formatDateDifference,
   capitalizeFirstLetter,
-  formatFormDate
+  formatFormDate,
+  getMainInfoFormattedDate
 } from '../utils.js';
+import {MAIN_INFO_MAX_CITIES} from '../constants.js';
 
 export default class PointsModel {
   #tripPoints = mockPoints;
@@ -40,6 +42,17 @@ export default class PointsModel {
     return structuredClone(this.#cities);
   }
 
+  get pointsCount() {
+    return this.#adaptedPointsData.length;
+  }
+
+  get mainInfo() {
+    return {
+      'dates': this.#getMainInfoDates(),
+      'cities': this.#getMainInfoCities()
+    };
+  }
+
   init() {
     this.#adaptPointsData();
     this.#adaptBlankPointData();
@@ -59,6 +72,8 @@ export default class PointsModel {
       pointData.endTime = getTime(pointData.endDate);
       pointData.formStartDate = formatFormDate(pointData.startDate);
       pointData.formEndDate = formatFormDate(pointData.endDate);
+      pointData.headerFormattedStartDate = getMainInfoFormattedDate(pointData.startDate);
+      pointData.headerFormattedEndDate = getMainInfoFormattedDate(pointData.endDate);
     });
     this.#adaptedPointsData = tripPointsData;
   }
@@ -77,5 +92,49 @@ export default class PointsModel {
       typeData.capitalizedName = capitalizeFirstLetter(typeData.name);
     });
     this.#adaptedPointTypesData = pointTypesData;
+  }
+
+  #getMainInfoDates() {
+    if (!this.#adaptedPointsData.length) {
+      return;
+    }
+    const start = this.#adaptedPointsData[0].headerFormattedStartDate;
+    const end = this.#adaptedPointsData[this.#adaptedPointsData.length - 1].headerFormattedEndDate;
+
+    if (this.#adaptedPointsData.length === 1) {
+      return {
+        'start': {
+          'day': start.day,
+          'month': start.month
+        }
+      };
+    }
+
+    return {
+      'start': {
+        'day': start.day,
+        'month': start.month === end.month ? '' : `&nbsp;${start.month}`,
+      },
+      'end': {
+        'day': end.day,
+        'month': end.month
+      }
+    };
+  }
+
+  #getMainInfoCities() {
+    const cityNames = this.#adaptedPointsData.map((point) => point.destination.cityName);
+    let result = '';
+
+    if (cityNames.length <= MAIN_INFO_MAX_CITIES) {
+      cityNames.forEach((city, index) => {
+        result += `${index !== 0 ? ' &mdash; ' : ''}`;
+        result += city;
+      });
+      return result;
+    }
+    result = `${cityNames[0]} &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
+
+    return result;
   }
 }

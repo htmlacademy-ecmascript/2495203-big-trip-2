@@ -49,6 +49,13 @@ export function getTripPointFormattedDate(date) {
   return dayjs(date).format('MMM D');
 }
 
+export function getMainInfoFormattedDate(date) {
+  return {
+    'day': dayjs(date).format('D'),
+    'month': dayjs(date).format('MMM')
+  };
+}
+
 export function getHTMLDatetime(date) {
   return dayjs(date).format('YYYY-MM-DD');
 }

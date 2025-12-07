@@ -7,3 +7,4 @@ export const MINUTES_IN_HOUR = 60;
 export const HOURS_IN_DAY = 24;
 export const KEY_ESCAPE = 'Escape';
 export const EVT_KEYDOWN = 'keydown';
+export const MAIN_INFO_MAX_CITIES = 3;

@@ -34,7 +34,7 @@ const mockPoints = [
     endDate: new Date('2025-11-21 14:30'),
     price: 1400,
     isFavorite: false,
-  }
+  },
 ];
 
 export {mockPoints};
