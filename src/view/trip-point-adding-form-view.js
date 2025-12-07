@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function getPhotosList(photos) {
   return (
@@ -113,30 +113,23 @@ function getAddTripPointFormTemplate({blankPoint, pointTypes, cities}) {
             </li>`;
 }
 
-export default class TripPointAddingFormView {
-  constructor(pointsModel) {
-    this.pointsModel = pointsModel;
-    this.cities = pointsModel.getCities();
-    this.pointTypes = pointsModel.getPointTypes();
-    this.blankPointData = pointsModel.getBlankPoint();
+export default class TripPointAddingFormView extends AbstractView {
+  #cities = null;
+  #pointTypes = null;
+  #blankPointData = null;
+
+  constructor({cities, pointTypes, blankPoint}) {
+    super();
+    this.#cities = cities;
+    this.#pointTypes = pointTypes;
+    this.#blankPointData = blankPoint;
   }
 
-  getTemplate() {
+  get template() {
     return getAddTripPointFormTemplate({
-      blankPoint: this.blankPointData,
-      pointTypes: this.pointTypes,
-      cities: this.cities
+      blankPoint: this.#blankPointData,
+      pointTypes: this.#pointTypes,
+      cities: this.#cities
     });
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

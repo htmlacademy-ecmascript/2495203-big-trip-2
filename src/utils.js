@@ -79,7 +79,7 @@ export function formatDateDifference(start, end) {
   return resultDifferenceTime;
 }
 
-export function formatAddingFormDate(date) {
+export function formatFormDate(date) {
   return dayjs(date).format('DD/MM/YYYY HH:mm');
 }
 

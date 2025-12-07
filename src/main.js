@@ -1,4 +1,4 @@
-import {render, RenderPosition} from './render.js';
+import {render, RenderPosition} from './framework/render.js';
 import TripMainInfoView from './view/trip-main-info.js';
 import FilterView from './view/filter-view.js';
 import TripPointAddingButtonView from './view/trip-point-adding-button-view.js';
