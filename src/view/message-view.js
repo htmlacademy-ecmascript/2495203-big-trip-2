@@ -18,4 +18,8 @@ export default class MessageView extends AbstractView {
   get template() {
     return getMessageTemplate();
   }
+
+  removeElement() {
+    this.element.remove();
+  }
 }
