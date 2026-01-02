@@ -4,6 +4,7 @@ import {
 } from '../framework/render.js';
 import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
+import {updateDataItem} from '../utils.js';
 
 export default class TripPointsListPresenter {
   #listElement = null;
@@ -12,6 +13,7 @@ export default class TripPointsListPresenter {
   #pointTypes = null;
   #cities = null;
   #addingFormComponent = null;
+  #pointPresenters = new Map();
 
   constructor({listElement, pointsModel}) {
     this.#listElement = listElement;
@@ -49,8 +51,24 @@ export default class TripPointsListPresenter {
   }
 
   #renderPoint(pointData) {
-    const pointPresenter = new PointPresenter(this.#listElement);
+    const pointPresenter = new PointPresenter({
+      listElement: this.#listElement,
+      handleDataChange: this.#handlePointChange,
+      handlePointEditClick: this.#closeAllEditForms
+    });
 
     pointPresenter.init(pointData, this.#pointTypes, this.#cities);
+    this.#pointPresenters.set(pointData.id, pointPresenter);
   }
+
+  #handlePointChange = (changedPoint) => {
+    this.#pointsData = updateDataItem(this.#pointsData, changedPoint);
+    this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
+  };
+
+  #closeAllEditForms = () => {
+    this.#pointPresenters.forEach((point) => {
+      point.resetEditForm();
+    });
+  };
 }

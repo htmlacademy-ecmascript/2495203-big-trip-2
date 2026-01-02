@@ -1,9 +1,11 @@
 import {pointTypes} from './point-types.js';
 import {cities} from './cities.js';
 import {getRandomArrayElement} from '../utils.js';
+import {nanoid} from 'nanoid';
 
 const mockPoints = [
   {
+    id: nanoid(),
     type: getRandomArrayElement(pointTypes),
     destination: getRandomArrayElement(cities),
     startDate: new Date('2025-11-18 10:30'),
@@ -12,6 +14,7 @@ const mockPoints = [
     isFavorite: false,
   },
   {
+    id: nanoid(),
     type: getRandomArrayElement(pointTypes),
     destination: getRandomArrayElement(cities),
     startDate: new Date('2025-10-19 11:30'),
@@ -20,6 +23,7 @@ const mockPoints = [
     isFavorite: true,
   },
   {
+    id: nanoid(),
     type: getRandomArrayElement(pointTypes),
     destination: getRandomArrayElement(cities),
     startDate: new Date('2025-11-20 12:30'),
@@ -28,6 +32,7 @@ const mockPoints = [
     isFavorite: false,
   },
   {
+    id: nanoid(),
     type: getRandomArrayElement(pointTypes),
     destination: getRandomArrayElement(cities),
     startDate: new Date('2025-11-21 13:30'),

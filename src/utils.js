@@ -93,3 +93,7 @@ export function formatFormDate(date) {
 export function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
+
+export function updateDataItem(items, newItem) {
+  return items.map((item) => item.id === newItem.id ? newItem : item);
+}
