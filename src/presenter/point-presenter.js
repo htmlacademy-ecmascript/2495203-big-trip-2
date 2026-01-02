@@ -11,8 +11,8 @@ import TripPointView from '../view/trip-point-view.js';
 import TripPointEditingFormView from '../view/trip-point-editing-form-view.js';
 
 const Mode = {
-  SHOW: 'SHOW',
-  EDITING: 'EDITING'
+  VIEW: 'VIEW',
+  EDIT: 'EDIT'
 };
 export default class PointPresenter {
   #pointComponent = null;
@@ -21,7 +21,7 @@ export default class PointPresenter {
   #pointData = null;
   #handleDataChange = null;
   #handleEditClick = null;
-  #defaultMode = Mode.SHOW;
+  #defaultMode = Mode.VIEW;
   #mode = this.#defaultMode;
 
   constructor({listElement, handleDataChange, handlePointEditClick}) {
@@ -71,7 +71,7 @@ export default class PointPresenter {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === Mode.EDIT) {
       replace(this.#editFormComponent, prevEditFormComponent);
     }
 
@@ -85,7 +85,7 @@ export default class PointPresenter {
   }
 
   resetForm() {
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === Mode.EDIT) {
       this.#replaceFormToPoint();
       document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
     }
@@ -93,7 +93,7 @@ export default class PointPresenter {
 
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
-    this.#mode = Mode.EDITING;
+    this.#mode = Mode.EDIT;
   }
 
   #replaceFormToPoint() {
