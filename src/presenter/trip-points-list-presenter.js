@@ -4,20 +4,34 @@ import {
 } from '../framework/render.js';
 import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
-import {replaceDataArrayItem} from '../utils.js';
+import {
+  replaceArrayItem,
+  sortByDateAsc,
+  sortByDurationAsc,
+  sortByPriceAsc
+} from '../utils.js';
+
+const SortCriteria = {
+  START_DAY: 'sort-day',
+  DURATION: 'sort-time',
+  PRICE: 'sort-price'
+};
 
 export default class TripPointsListPresenter {
   #listElement = null;
   #pointsModel = null;
+  #originPointsData = null;
   #pointsData = null;
   #pointTypes = null;
   #cities = null;
   #addingFormComponent = null;
   #pointPresenters = new Map();
+  #currentSortCriteria = SortCriteria.START_DAY;
 
   constructor({listElement, pointsModel}) {
     this.#listElement = listElement;
     this.#pointsModel = pointsModel;
+    this.#originPointsData = this.#pointsModel.tripPoints;
     this.#pointsData = this.#pointsModel.tripPoints;
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
@@ -44,6 +58,31 @@ export default class TripPointsListPresenter {
     }
   }
 
+  handleSortChange = (sortCriteria) => {
+    if (sortCriteria === this.#currentSortCriteria) {
+      return;
+    }
+
+    switch (sortCriteria) {
+      case SortCriteria.DURATION: {
+        this.#pointsData.sort(sortByDurationAsc);
+        break;
+      }
+      case SortCriteria.PRICE: {
+        this.#pointsData.sort(sortByPriceAsc);
+        break;
+      }
+      case SortCriteria.START_DAY: {
+        this.#pointsData.sort(sortByDateAsc);
+        break;
+      }
+    }
+
+    this.#clearPointsList();
+    this.#renderPoints(this.#pointsData);
+    this.#currentSortCriteria = sortCriteria;
+  };
+
   #renderPoints(pointsData) {
     pointsData.forEach((pointData) => {
       this.#renderPoint(pointData);
@@ -54,7 +93,7 @@ export default class TripPointsListPresenter {
     const pointPresenter = new PointPresenter({
       listElement: this.#listElement,
       handleDataChange: this.#handlePointChange,
-      handlePointEditClick: this.#resetAllEditForms
+      handlePointEditClick: this.#resetAllForms
     });
 
     pointPresenter.init(pointData, this.#pointTypes, this.#cities);
@@ -62,13 +101,19 @@ export default class TripPointsListPresenter {
   }
 
   #handlePointChange = (changedPoint) => {
-    this.#pointsData = replaceDataArrayItem(this.#pointsData, changedPoint);
+    this.#pointsData = replaceArrayItem(this.#pointsData, changedPoint);
     this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
   };
 
-  #resetAllEditForms = () => {
+  #resetAllForms = () => {
     this.#pointPresenters.forEach((point) => {
       point.resetForm();
+    });
+  };
+
+  #clearPointsList = () => {
+    this.#pointPresenters.forEach((point) => {
+      point.destroy();
     });
   };
 }
