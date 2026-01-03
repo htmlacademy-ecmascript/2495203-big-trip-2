@@ -4,20 +4,34 @@ import {
 } from '../framework/render.js';
 import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
-import {replaceDataArrayItem} from '../utils.js';
+import {
+  replaceDataArrayItem,
+  sortByDateDesc,
+  sortByDurationDesc,
+  sortByPriceDesc
+} from '../utils.js';
+
+const SortCriteria = {
+  START_DAY: 'sort-day',
+  DURATION: 'sort-time',
+  PRICE: 'sort-price'
+};
 
 export default class TripPointsListPresenter {
   #listElement = null;
   #pointsModel = null;
+  #originPointsData = null;
   #pointsData = null;
   #pointTypes = null;
   #cities = null;
   #addingFormComponent = null;
   #pointPresenters = new Map();
+  #currentSortCriteria = SortCriteria.START_DAY;
 
   constructor({listElement, pointsModel}) {
     this.#listElement = listElement;
     this.#pointsModel = pointsModel;
+    this.#originPointsData = this.#pointsModel.tripPoints;
     this.#pointsData = this.#pointsModel.tripPoints;
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
@@ -44,6 +58,31 @@ export default class TripPointsListPresenter {
     }
   }
 
+  handleSortChange = (sortCriteria) => {
+    if (sortCriteria === this.#currentSortCriteria) {
+      return;
+    }
+
+    switch (sortCriteria) {
+      case SortCriteria.DURATION: {
+        this.#pointsData.sort(sortByDurationDesc);
+        break;
+      }
+      case SortCriteria.PRICE: {
+        this.#pointsData.sort(sortByPriceDesc);
+        break;
+      }
+      case SortCriteria.START_DAY: {
+        this.#pointsData.sort(sortByDateDesc);
+        break;
+      }
+    }
+
+    this.#clearPointsList();
+    this.#renderPoints(this.#pointsData);
+    this.#currentSortCriteria = sortCriteria;
+  };
+
   #renderPoints(pointsData) {
     pointsData.forEach((pointData) => {
       this.#renderPoint(pointData);
@@ -69,6 +108,12 @@ export default class TripPointsListPresenter {
   #resetAllEditForms = () => {
     this.#pointPresenters.forEach((point) => {
       point.resetForm();
+    });
+  };
+
+  #clearPointsList = () => {
+    this.#pointPresenters.forEach((point) => {
+      point.destroy();
     });
   };
 }

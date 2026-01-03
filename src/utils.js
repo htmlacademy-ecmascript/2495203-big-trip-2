@@ -97,3 +97,18 @@ export function capitalizeFirstLetter(word) {
 export function replaceDataArrayItem(items, newItem) {
   return items.map((item) => item.id === newItem.id ? newItem : item);
 }
+
+export function sortByDateDesc(a, b) {
+  return a.startDate - b.startDate;
+}
+
+export function sortByPriceDesc(a, b) {
+  return a.price - b.price;
+}
+
+export function sortByDurationDesc(a, b) {
+  const firstDuration = a.endDate - a.startDate;
+  const secondDuration = b.endDate - b.startDate;
+
+  return firstDuration - secondDuration;
+}

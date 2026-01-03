@@ -17,11 +17,13 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel;
     this.#tripContainer = tripContainer;
     this.#pointsCount = this.#pointsModel.pointsCount;
-    this.#sortComponent = new SortView();
     this.#pointsListComponent = new TripPointsListView();
     this.#pointsListPresenter = new TripPointsListPresenter({
       listElement: this.#pointsListComponent.element,
       pointsModel: this.#pointsModel,
+    });
+    this.#sortComponent = new SortView({
+      onSortChange: this.#pointsListPresenter.handleSortChange
     });
     this.#messageComponent = new MessageView();
   }
