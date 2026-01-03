@@ -98,15 +98,15 @@ export function replaceArrayItem(items, newItem) {
   return items.map((item) => item.id === newItem.id ? newItem : item);
 }
 
-export function sortByDateDesc(a, b) {
+export function sortByDateAsc(a, b) {
   return a.startDate - b.startDate;
 }
 
-export function sortByPriceDesc(a, b) {
+export function sortByPriceAsc(a, b) {
   return a.price - b.price;
 }
 
-export function sortByDurationDesc(a, b) {
+export function sortByDurationAsc(a, b) {
   const firstDuration = a.endDate - a.startDate;
   const secondDuration = b.endDate - b.startDate;
 

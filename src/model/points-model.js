@@ -10,7 +10,7 @@ import {
   capitalizeFirstLetter,
   formatFormDate,
   getMainInfoFormattedDate,
-  sortByDateDesc
+  sortByDateAsc
 } from '../utils.js';
 import {MAIN_INFO_MAX_CITIES} from '../constants.js';
 
@@ -76,7 +76,7 @@ export default class PointsModel {
       pointData.headerFormattedStartDate = getMainInfoFormattedDate(pointData.startDate);
       pointData.headerFormattedEndDate = getMainInfoFormattedDate(pointData.endDate);
     });
-    this.#adaptedPointsData = tripPointsData.sort(sortByDateDesc);
+    this.#adaptedPointsData = tripPointsData.sort(sortByDateAsc);
   }
 
   #adaptBlankPointData() {

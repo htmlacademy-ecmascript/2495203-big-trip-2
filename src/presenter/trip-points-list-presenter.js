@@ -6,9 +6,9 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   replaceArrayItem,
-  sortByDateDesc,
-  sortByDurationDesc,
-  sortByPriceDesc
+  sortByDateAsc,
+  sortByDurationAsc,
+  sortByPriceAsc
 } from '../utils.js';
 
 const SortCriteria = {
@@ -65,15 +65,15 @@ export default class TripPointsListPresenter {
 
     switch (sortCriteria) {
       case SortCriteria.DURATION: {
-        this.#pointsData.sort(sortByDurationDesc);
+        this.#pointsData.sort(sortByDurationAsc);
         break;
       }
       case SortCriteria.PRICE: {
-        this.#pointsData.sort(sortByPriceDesc);
+        this.#pointsData.sort(sortByPriceAsc);
         break;
       }
       case SortCriteria.START_DAY: {
-        this.#pointsData.sort(sortByDateDesc);
+        this.#pointsData.sort(sortByDateAsc);
         break;
       }
     }

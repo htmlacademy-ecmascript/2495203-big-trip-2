@@ -33,17 +33,13 @@ function getSortTemplate() {
 
 export default class SortView extends AbstractView {
   #handleSortChange = null;
-  #sortButtons = null;
 
   constructor({onSortChange}) {
     super();
     this.#handleSortChange = onSortChange;
-    this.#sortButtons = this.element.querySelectorAll('input[name="trip-sort"]');
 
-    this.#sortButtons.forEach((button) => {
-      button.addEventListener('change', (evt) => {
-        this.#onSortChange(evt);
-      });
+    this.element.addEventListener('change', (evt) => {
+      this.#onSortChange(evt);
     });
   }
 
