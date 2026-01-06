@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {remove} from '../framework/render.js';
 
 function getPhotosList(photos) {
   return (
@@ -142,18 +143,13 @@ export default class TripPointAddingFormView extends AbstractView {
     });
   }
 
-  removeElement() {
-    this.element.remove();
-  }
-
   #handleFormSubmit = (evt) => {
     evt.preventDefault();
-    this.removeElement();
+    remove(this);
   };
 
-  #handleCancelButtonClick = (evt) => {
-    evt.preventDefault();
-    this.removeElement();
+  #handleCancelButtonClick = () => {
+    remove(this);
   };
 
 }

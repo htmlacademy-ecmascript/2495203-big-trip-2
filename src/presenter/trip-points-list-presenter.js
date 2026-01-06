@@ -6,7 +6,6 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   replaceArrayItem,
-  sortByDateAsc,
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
@@ -31,8 +30,8 @@ export default class TripPointsListPresenter {
   constructor({listElement, pointsModel}) {
     this.#listElement = listElement;
     this.#pointsModel = pointsModel;
-    this.#originPointsData = this.#pointsModel.tripPoints;
-    this.#pointsData = this.#pointsModel.tripPoints;
+    this.#originPointsData = [...this.#pointsModel.tripPoints];
+    this.#pointsData = [...this.#pointsModel.tripPoints];
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
   }
@@ -63,24 +62,8 @@ export default class TripPointsListPresenter {
       return;
     }
 
-    switch (sortCriteria) {
-      case SortCriteria.DURATION: {
-        this.#pointsData.sort(sortByDurationAsc);
-        break;
-      }
-      case SortCriteria.PRICE: {
-        this.#pointsData.sort(sortByPriceAsc);
-        break;
-      }
-      case SortCriteria.START_DAY: {
-        this.#pointsData.sort(sortByDateAsc);
-        break;
-      }
-    }
-
-    this.#clearPointsList();
-    this.#renderPoints(this.#pointsData);
     this.#currentSortCriteria = sortCriteria;
+    this.#applySort(sortCriteria);
   };
 
   #renderPoints(pointsData) {
@@ -100,11 +83,6 @@ export default class TripPointsListPresenter {
     this.#pointPresenters.set(pointData.id, pointPresenter);
   }
 
-  #handlePointChange = (changedPoint) => {
-    this.#pointsData = replaceArrayItem(this.#pointsData, changedPoint);
-    this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
-  };
-
   #resetAllForms = () => {
     this.#pointPresenters.forEach((point) => {
       point.resetForm();
@@ -115,5 +93,30 @@ export default class TripPointsListPresenter {
     this.#pointPresenters.forEach((point) => {
       point.destroy();
     });
+  };
+
+  #applySort = (sortCriteria) => {
+    switch (sortCriteria) {
+      case SortCriteria.DURATION: {
+        this.#pointsData.sort(sortByDurationAsc);
+        break;
+      }
+      case SortCriteria.PRICE: {
+        this.#pointsData.sort(sortByPriceAsc);
+        break;
+      }
+      case SortCriteria.START_DAY: {
+        this.#pointsData = [...this.#originPointsData];
+        break;
+      }
+    }
+    this.#clearPointsList();
+    this.#renderPoints(this.#pointsData);
+  };
+
+  #handlePointChange = (changedPoint) => {
+    this.#pointsData = replaceArrayItem(this.#pointsData, changedPoint);
+    this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
+    this.#applySort(this.#currentSortCriteria);
   };
 }

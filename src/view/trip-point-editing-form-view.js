@@ -162,10 +162,12 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     return getEditFormTemplate(this._state, this.#pointTypes, this.#cities);
   }
 
-  parseStateToPointData(state) {
-    const pointData = {...state};
+  _restoreHandlers() {
+    this.#setHandlers();
+  }
 
-    return pointData;
+  parseStateToPointData() {
+    return {...this._state};
   }
 
   #setHandlers = () => {
@@ -182,7 +184,7 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     this.#form.addEventListener('submit', this.#formSubmitHandler);
     this.#rollupButton.addEventListener('click', this.#rollupButtonClickHandler);
     this.#typesDropdown.addEventListener('change', (evt) => {
-      this.#typesChangeHandler(evt);
+      this.#typeChangeHandler(evt);
     });
     this.#destinationInput.addEventListener('input', (evt) => {
       this.#destinationInputHandler(evt);
@@ -201,7 +203,6 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     };
   }
 
-
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit();
@@ -212,7 +213,7 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     this.#handleRollupButtonClick();
   };
 
-  #typesChangeHandler = (evt) => {
+  #typeChangeHandler = (evt) => {
     const chosenTypeId = evt.target.value;
     const chosenTypeName = this.#pointTypes[chosenTypeId].name;
 
@@ -255,13 +256,8 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     const targetOption = typeCopy.options.find(({id}) => id === Number(clickedOfferId));
 
     targetOption.checked = clickedOffer.checked;
-
     this._setState({
       type: typeCopy
     });
   };
-
-  _restoreHandlers() {
-    this.#setHandlers();
-  }
 }
