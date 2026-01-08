@@ -13,6 +13,11 @@ const tripPresenter = new TripPresenter({
   tripContainer: eventsContainer,
   pointsModel: pointsModel
 });
+const addButtonView = new TripPointAddingButtonView({
+  onButtonClick: () => {
+    tripPresenter.handleAddingButtonClick();
+  }
+});
 
 if (pointsModel.pointsCount) {
   render(new TripMainInfoView({
@@ -20,10 +25,6 @@ if (pointsModel.pointsCount) {
   }), mainInfoContainer);
 }
 render(new FilterView(), mainInfoContainer);
-render(new TripPointAddingButtonView({
-  onButtonClick: () => {
-    tripPresenter.handleAddingButtonClick();
-  }
-}), mainInfoContainer);
+render(addButtonView, mainInfoContainer);
 
-tripPresenter.init();
+tripPresenter.init({addButtonView});

@@ -7,24 +7,25 @@ const blankPoint = {
         id: 16,
         name: 'First',
         alias: '16',
-        price: 10
+        price: 10,
+        checked: false
       },
       {
         id: 17,
         name: 'Second',
         alias: '17',
-        price: 20
+        price: 20,
+        checked: false
       },
       {
         id: 18,
         name: 'Third',
         alias: '18',
-        price: 30
+        price: 30,
+        checked: false
       }
     ]
   },
-  startDate: new Date(),
-  endDate: new Date(),
   price: 0,
 };
 

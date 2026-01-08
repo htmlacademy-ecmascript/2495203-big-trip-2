@@ -51,10 +51,7 @@ export default class PointPresenter {
       pointData,
       pointTypes,
       cities,
-      onFormSubmit: () => {
-        this.#replaceFormToPoint();
-        document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
-      },
+      onFormSubmit: this.#handleEditFormSubmit,
       onRollupButtonClick: () => {
         this.#replaceFormToPoint();
         document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
@@ -115,6 +112,14 @@ export default class PointPresenter {
       isFavorite: !this.#pointData.isFavorite
     };
     this.#handleDataChange(changedData);
+  };
+
+  #handleEditFormSubmit = () => {
+    const changedData = {...this.#editFormComponent.parseStateToPointData()};
+
+    this.#handleDataChange(changedData);
+    this.#replaceFormToPoint();
+    document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   };
 }
 

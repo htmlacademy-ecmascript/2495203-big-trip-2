@@ -80,11 +80,7 @@ export default class PointsModel {
   }
 
   #adaptBlankPointData() {
-    const blankPointData = structuredClone(this.#blankPoint);
-    blankPointData.type.capitalizedName = capitalizeFirstLetter(blankPointData.type.name);
-    blankPointData.formattedStartDate = formatFormDate(blankPointData.startDate);
-    blankPointData.formattedEndDate = formatFormDate(blankPointData.endDate);
-    this.#adaptedBlankPointData = blankPointData;
+    this.#adaptedBlankPointData = structuredClone(this.#blankPoint);
   }
 
   #adaptPointTypesData() {

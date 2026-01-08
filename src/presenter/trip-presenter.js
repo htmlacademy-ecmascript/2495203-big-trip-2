@@ -12,6 +12,7 @@ export default class TripPresenter {
   #pointsListPresenter = null;
   #pointsCount = null;
   #messageComponent = null;
+  #addButtonComponent = null;
 
   constructor({tripContainer, pointsModel}) {
     this.#pointsModel = pointsModel;
@@ -28,7 +29,8 @@ export default class TripPresenter {
     this.#messageComponent = new MessageView();
   }
 
-  init() {
+  init({addButtonView}) {
+    this.#addButtonComponent = addButtonView;
     if (!this.#pointsCount) {
       this.#renderMessage();
       return;
@@ -44,7 +46,7 @@ export default class TripPresenter {
 
   #renderPointsList() {
     this.#createListLayout();
-    this.#pointsListPresenter.init();
+    this.#pointsListPresenter.init({addButtonView: this.#addButtonComponent});
   }
 
   #createListLayout() {

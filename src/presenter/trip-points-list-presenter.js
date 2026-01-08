@@ -6,7 +6,6 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   replaceArrayItem,
-  sortByDateAsc,
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
@@ -24,6 +23,7 @@ export default class TripPointsListPresenter {
   #pointsData = null;
   #pointTypes = null;
   #cities = null;
+  #addButtonComponent = null;
   #addingFormComponent = null;
   #pointPresenters = new Map();
   #currentSortCriteria = SortCriteria.START_DAY;
@@ -31,13 +31,14 @@ export default class TripPointsListPresenter {
   constructor({listElement, pointsModel}) {
     this.#listElement = listElement;
     this.#pointsModel = pointsModel;
-    this.#originPointsData = this.#pointsModel.tripPoints;
-    this.#pointsData = this.#pointsModel.tripPoints;
+    this.#originPointsData = [...this.#pointsModel.tripPoints];
+    this.#pointsData = [...this.#pointsModel.tripPoints];
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
   }
 
-  init() {
+  init({addButtonView}) {
+    this.#addButtonComponent = addButtonView;
     if (this.#pointsData.length) {
       this.#renderPoints(this.#pointsData);
     }
@@ -48,14 +49,10 @@ export default class TripPointsListPresenter {
       cities: this.#pointsModel.cities,
       pointTypes: this.#pointsModel.pointTypes,
       blankPoint: this.#pointsModel.blankPoint,
+      onFormSubmit: this.#handleAddFormSubmit,
+      addButtonView: this.#addButtonComponent
     });
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
-  }
-
-  closeAddingForm() {
-    if (this.#addingFormComponent) {
-      this.#addingFormComponent.removeElement();
-    }
   }
 
   handleSortChange = (sortCriteria) => {
@@ -63,25 +60,13 @@ export default class TripPointsListPresenter {
       return;
     }
 
-    switch (sortCriteria) {
-      case SortCriteria.DURATION: {
-        this.#pointsData.sort(sortByDurationAsc);
-        break;
-      }
-      case SortCriteria.PRICE: {
-        this.#pointsData.sort(sortByPriceAsc);
-        break;
-      }
-      case SortCriteria.START_DAY: {
-        this.#pointsData.sort(sortByDateAsc);
-        break;
-      }
-    }
-
-    this.#clearPointsList();
-    this.#renderPoints(this.#pointsData);
     this.#currentSortCriteria = sortCriteria;
+    this.#applySort(sortCriteria);
   };
+
+  #enableButton() {
+    this.#addButtonComponent.element.disabled = false;
+  }
 
   #renderPoints(pointsData) {
     pointsData.forEach((pointData) => {
@@ -100,11 +85,6 @@ export default class TripPointsListPresenter {
     this.#pointPresenters.set(pointData.id, pointPresenter);
   }
 
-  #handlePointChange = (changedPoint) => {
-    this.#pointsData = replaceArrayItem(this.#pointsData, changedPoint);
-    this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
-  };
-
   #resetAllForms = () => {
     this.#pointPresenters.forEach((point) => {
       point.resetForm();
@@ -116,4 +96,39 @@ export default class TripPointsListPresenter {
       point.destroy();
     });
   };
+
+  #applySort = (sortCriteria) => {
+    switch (sortCriteria) {
+      case SortCriteria.DURATION: {
+        this.#pointsData.sort(sortByDurationAsc);
+        break;
+      }
+      case SortCriteria.PRICE: {
+        this.#pointsData.sort(sortByPriceAsc);
+        break;
+      }
+      case SortCriteria.START_DAY: {
+        this.#pointsData = [...this.#originPointsData];
+        break;
+      }
+    }
+    this.#clearPointsList();
+    this.#renderPoints(this.#pointsData);
+  };
+
+  #handlePointChange = (changedPoint) => {
+    this.#pointsData = replaceArrayItem(this.#pointsData, changedPoint);
+    this.#originPointsData = replaceArrayItem(this.#originPointsData, changedPoint);
+    this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
+    this.#applySort(this.#currentSortCriteria);
+  };
+
+  #handleAddFormSubmit = (pointData) => {
+    this.#addNewPoint(pointData);
+    this.#enableButton();
+  };
+
+  #addNewPoint(pointData) {
+    return pointData;
+  }
 }

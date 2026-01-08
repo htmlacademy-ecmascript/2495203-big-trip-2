@@ -1,15 +1,22 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {getIconSrcByEventType} from '../utils.js';
 
 function getOffersTemplate(offersData) {
+  if (!offersData.some(({checked}) => checked)) {
+    return '';
+  }
+
   return (
     `<ul class="event__selected-offers">
-        ${offersData.map(({name, price}) => `<li class="event__offer">
-            <span class="event__offer-title">${name}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${price}</span>
-          </li>
-        `).join('')}
-      </ul>`
+      ${offersData.map(({name, price, checked}) => checked ?
+      `<li class="event__offer">
+          <span class="event__offer-title">${name}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${price}</span>
+        </li>` :
+      '')
+      .join('')}
+    </ul>`
   );
 }
 
@@ -18,7 +25,7 @@ function getTripPointTemplate(pointData) {
               <div class="event">
                 <time class="event__date" datetime="${pointData.htmlStartDate}">${pointData.formattedDate}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="${getIconSrcByEventType(pointData.type.name)}" alt="${pointData.type.name}">
                 </div>
                 <h3 class="event__title">${pointData.type.name} ${pointData.destination.cityName}</h3>
                 <div class="event__schedule">
