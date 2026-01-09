@@ -8,6 +8,8 @@ import {
   RANDOM_SENTENCES_DEFAULT_AMOUNT
 } from './constants.js';
 import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 export function getRandomInteger(min = RANDOM_INT_MIN_RANGE_DEFAULT, max = RANDOM_INT_MAX_RANGE_DEFAULT) {
   min = Math.ceil(min);
@@ -115,4 +117,69 @@ export function sortByDurationAsc(a, b) {
 
 export function getIconSrcByEventType(typeName) {
   return `img/icons/${typeName}.png`;
+}
+
+export function initFlatpickr(component) {
+  const startInput = component.element.querySelector('#event-start-time');
+  const endInput = component.element.querySelector('#event-end-time');
+
+  flatpickr(startInput, {
+    defaultDate: component.state.startDate ?? '',
+    defaultHour: component.state.startTime ? component.state.startTime.split(':')[0] : '',
+    defaultMinute: component.state.startTime ? component.state.startTime.split(':')[1] : '',
+    enableTime: true,
+    dateFormat: 'd/m/Y H:i',
+    minDate: 'today',
+    onChange: (selectedDates) => {
+      const newDate = selectedDates[0];
+      const isToChangeEndDate = newDate > component.state.endDate;
+
+      component.updateElement({
+        startDate: newDate,
+        endDate: isToChangeEndDate ? newDate : component.state.endDate,
+        formattedDate: getTripPointFormattedDate(newDate),
+        startDateISO: newDate.toISOString(),
+        endDateISO: isToChangeEndDate ? newDate.toISOString() : component.state.endDateISO,
+        htmlStartDate: getHTMLDatetime(newDate),
+        htmlEndDate: isToChangeEndDate ? getHTMLDatetime(newDate) : component.state.htmlEndDate,
+        startTime: getTime(newDate),
+        endTime: isToChangeEndDate ? getTime(newDate) : component.state.endTime,
+        formStartDate: formatFormDate(newDate),
+        formEndDate: isToChangeEndDate ? formatFormDate(newDate) : component.state.formEndDate,
+        headerFormattedStartDate: getMainInfoFormattedDate(newDate),
+        headerFormattedEndDate: isToChangeEndDate ? getMainInfoFormattedDate(newDate) : component.state.headerFormattedEndDate,
+      });
+      component.state = {
+        duration: formatDateDifference(component.state.startDate, component.state.endDate)
+      };
+    }
+  });
+
+  flatpickr(endInput, {
+    defaultDate: component.state.endDate ?? '',
+    defaultHour: component.state.endTime ? component.state.endTime.split(':')[0] : '',
+    defaultMinute: component.state.endTime ? component.state.endTime.split(':')[1] : '',
+    enableTime: true,
+    dateFormat: 'd/m/Y H:i',
+    minDate: component.state.startDate ?? 'today',
+    onChange: (selectedDates) => {
+      const newDate = selectedDates[0];
+
+      component.updateElement({
+        endDate: newDate,
+        startDate: component.state.startDate ?? newDate,
+        endDateISO: newDate.toISOString(),
+        startDateISO: component.state.startDateISO ?? newDate.toISOString(),
+        htmlEndDate: getHTMLDatetime(newDate),
+        htmlStartDate: component.state.htmlStartDate ?? getHTMLDatetime(newDate),
+        duration: formatDateDifference(component.state.startDate ?? newDate, newDate),
+        endTime: getTime(newDate),
+        startTime: component.state.startTime ?? getTime(newDate),
+        formEndDate: formatFormDate(newDate),
+        formStartDate: component.state.formStartDate ?? formatFormDate(newDate),
+        headerFormattedEndDate: getMainInfoFormattedDate(newDate),
+        headerFormattedStartDate: component.state.headerFormattedStartDate ?? getMainInfoFormattedDate(newDate)
+      });
+    }
+  });
 }

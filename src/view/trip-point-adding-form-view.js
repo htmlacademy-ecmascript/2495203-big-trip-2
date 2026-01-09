@@ -7,6 +7,7 @@ import {
   typeChangeHandler
 } from '../form-handlers.js';
 import {nanoid} from 'nanoid';
+import {initFlatpickr} from '../utils.js';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -123,11 +124,19 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 </div>
 
                 <div class="event__field-group  event__field-group--time">
-                  <label class="visually-hidden" for="event-start-time-1">From</label>
-                  <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${state.formattedStartDate ?? ''}">
+                  <label class="visually-hidden" for="event-start-time">From</label>
+                  <input class="event__input  event__input--time"
+                  id="event-start-time"
+                  type="text"
+                  name="event-start-time"
+                  value="${state.formattedStartDate ?? ''}">
                   ${(state.formattedStartDate && state.formattedEndDate) ? '&mdash;' : ''}
-                  <label class="visually-hidden" for="event-end-time-1">To</label>
-                  <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${state.formattedEndDate ?? ''}">
+                  <label class="visually-hidden" for="event-end-time">To</label>
+                  <input class="event__input  event__input--time"
+                  id="event-end-time"
+                  type="text"
+                  name="event-end-time"
+                  value="${state.formattedEndDate ?? ''}">
                 </div>
 
                 <div class="event__field-group  event__field-group--price">
@@ -228,7 +237,6 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
       this.#formSubmitHandler(evt);
     });
     this.#cancelButton.addEventListener('click', this.#handleCancelButtonClick);
-
     this.#typesDropdown.addEventListener('change', (evt) => {
       typeChangeHandler({evt, component: this});
     });
@@ -241,6 +249,8 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
     this.#offersContainer?.addEventListener('change', (evt) => {
       offerClickHandler({evt, component: this});
     });
+
+    initFlatpickr(this);
   };
 
   #parseDataToState(data) {

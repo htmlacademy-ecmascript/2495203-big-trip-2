@@ -6,6 +6,10 @@ import {
   typeChangeHandler
 } from '../form-handlers.js';
 
+import {
+  initFlatpickr
+} from '../utils.js';
+
 function getPointDetails(state) {
   if (!(state.type.options || state.destination.description)) {
     return '';
@@ -112,11 +116,11 @@ function getEditFormTemplate(state, types, cities) {
             </div>
 
             <div class="event__field-group  event__field-group--time">
-              <label class="visually-hidden" for="event-start-time-1">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${state.formStartDate}">
+              <label class="visually-hidden" for="event-start-time">From</label>
+              <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${state.formStartDate}">
               &mdash;
-              <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${state.formEndDate}">
+              <label class="visually-hidden" for="event-end-time">To</label>
+              <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${state.formEndDate}">
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -230,6 +234,8 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     this.#offersContainer?.addEventListener('change', (evt) => {
       offerClickHandler({evt, component: this});
     });
+
+    initFlatpickr(this);
   };
 
   #parsePointDataToState(data) {

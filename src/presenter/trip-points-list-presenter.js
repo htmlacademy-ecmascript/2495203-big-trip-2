@@ -6,6 +6,7 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   replaceArrayItem,
+  sortByDateAsc,
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
@@ -52,6 +53,7 @@ export default class TripPointsListPresenter {
       onFormSubmit: this.#handleAddFormSubmit,
       addButtonView: this.#addButtonComponent
     });
+    this.#resetAllForms();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
   }
 
@@ -108,7 +110,7 @@ export default class TripPointsListPresenter {
         break;
       }
       case SortCriteria.START_DAY: {
-        this.#pointsData = [...this.#originPointsData];
+        this.#pointsData.sort(sortByDateAsc);
         break;
       }
     }
