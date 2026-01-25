@@ -1,4 +1,5 @@
 import {
+  Filter,
   HOURS_IN_DAY,
   MINUTES_IN_HOUR,
   RANDOM_CITY_PICTURES_AMOUNT_DEFAULT,
@@ -64,6 +65,15 @@ export function getHTMLDatetime(date) {
 
 export function getTime(date) {
   return dayjs(date).format('HH:mm');
+}
+
+export function getDateWithoutTime(date) {
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+
+  return dayjs(date).format('YYYY/MM/DD');
 }
 
 export function formatDateDifference(start, end) {
@@ -184,4 +194,21 @@ export function initFlatpickr(component) {
       });
     }
   });
+}
+
+export function filterPoints(points, filterValue) {
+  switch (filterValue) {
+    case Filter.FUTURE:
+      return [...points.filter((point) => getDateWithoutTime(new Date) < getDateWithoutTime(point.startDate))];
+    case Filter.PRESENT:
+      return [...points.filter((point) => {
+        const currentDate = getDateWithoutTime(new Date);
+        const pointStartDate = getDateWithoutTime(point.startDate);
+        const pointEndDate = getDateWithoutTime(point.endDate);
+
+        return pointStartDate <= currentDate && pointEndDate >= currentDate;
+      })];
+    case Filter.PAST:
+      return [...points.filter((point) => getDateWithoutTime(new Date) > getDateWithoutTime(point.startDate))];
+  }
 }

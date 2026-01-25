@@ -9,12 +9,7 @@ import {
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
-
-const SortCriteria = {
-  START_DAY: 'sort-day',
-  DURATION: 'sort-time',
-  PRICE: 'sort-price'
-};
+import {SortCriteria} from '../constants.js';
 
 export default class TripPointsListPresenter {
   #listElement = null;
@@ -34,6 +29,7 @@ export default class TripPointsListPresenter {
 
     this.#pointsModel.setPointEditObserver(this.#handleModelPointChange);
     this.#pointsModel.setPointRemoveObserver(this.#handleModelPointRemove);
+    this.#pointsModel.setFilterChangeListObserver(this.#handleModelFilterChange);
   }
 
   get points() {
@@ -142,6 +138,11 @@ export default class TripPointsListPresenter {
   };
 
   #handleModelPointRemove = () => {
+    this.#rerenderPoints();
+  };
+
+  #handleModelFilterChange = () => {
+    this.#currentSortCriteria = SortCriteria.START_DAY;
     this.#rerenderPoints();
   };
 }

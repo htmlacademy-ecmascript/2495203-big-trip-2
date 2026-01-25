@@ -10,9 +10,13 @@ import {
   capitalizeFirstLetter,
   formatFormDate,
   getMainInfoFormattedDate,
-  sortByDateAsc
+  sortByDateAsc,
+  filterPoints,
 } from '../utils.js';
-import {MAIN_INFO_MAX_CITIES} from '../constants.js';
+import {
+  Filter,
+  MAIN_INFO_MAX_CITIES
+} from '../constants.js';
 
 export default class PointsModel {
   #tripPoints = mockPoints;
@@ -25,13 +29,21 @@ export default class PointsModel {
   #pointEditObserver = null;
   #pointAddObserver = null;
   #pointRemoveObserver = null;
+  #filterChangeListObserver = null;
+  #filterChangeSortObserver = null;
+  #defaultFilter = Filter.EVERYTHING;
+  #currentFilter = this.#defaultFilter;
 
   constructor() {
     this.init();
   }
 
   get tripPoints() {
-    return this.#adaptedPointsData;
+    if (this.#currentFilter === this.#defaultFilter) {
+      return this.#adaptedPointsData;
+    }
+
+    return filterPoints([...this.#adaptedPointsData], this.#currentFilter);
   }
 
   get blankPoint() {
@@ -69,6 +81,14 @@ export default class PointsModel {
     this.#pointRemoveObserver = observer;
   }
 
+  setFilterChangeListObserver(observer) {
+    this.#filterChangeListObserver = observer;
+  }
+
+  setFilterChangeSortObserver(observer) {
+    this.#filterChangeSortObserver = observer;
+  }
+
   init() {
     this.#adaptPointsData();
     this.#adaptBlankPointData();
@@ -95,6 +115,16 @@ export default class PointsModel {
 
     this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
     this.#pointRemoveObserver();
+  }
+
+  changeFilter(filterValue) {
+    if (filterValue === this.#currentFilter) {
+      return;
+    }
+
+    this.#currentFilter = filterValue;
+    this.#filterChangeListObserver();
+    this.#filterChangeSortObserver();
   }
 
   #adaptPointsData() {
