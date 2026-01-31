@@ -1,5 +1,5 @@
 import {
-  Filter,
+  FILTER, FORMATS,
   HOURS_IN_DAY,
   MINUTES_IN_HOUR,
   RANDOM_CITY_PICTURES_AMOUNT_DEFAULT,
@@ -49,22 +49,22 @@ export function getCityPhotos(amount = RANDOM_CITY_PICTURES_AMOUNT_DEFAULT) {
 }
 
 export function getTripPointFormattedDate(date) {
-  return dayjs(date).format('MMM D');
+  return dayjs(date).format(FORMATS.POINT_DATE);
 }
 
 export function getMainInfoFormattedDate(date) {
   return {
-    'day': dayjs(date).format('D'),
-    'month': dayjs(date).format('MMM')
+    'day': dayjs(date).format(FORMATS.DAY),
+    'month': dayjs(date).format(FORMATS.MONTH)
   };
 }
 
 export function getHTMLDatetime(date) {
-  return dayjs(date).format('YYYY-MM-DD');
+  return dayjs(date).format(FORMATS.FULL_DATE_HYPHEN);
 }
 
 export function getTime(date) {
-  return dayjs(date).format('HH:mm');
+  return dayjs(date).format(FORMATS.TIME);
 }
 
 export function getDateWithoutTime(date) {
@@ -73,7 +73,7 @@ export function getDateWithoutTime(date) {
   date.setSeconds(0);
   date.setMilliseconds(0);
 
-  return dayjs(date).format('YYYY/MM/DD');
+  return dayjs(date).format(FORMATS.FULL_DATE_HYPHEN);
 }
 
 export function formatDateDifference(start, end) {
@@ -99,7 +99,7 @@ export function formatDateDifference(start, end) {
 }
 
 export function formatFormDate(date) {
-  return dayjs(date).format('DD/MM/YYYY HH:mm');
+  return dayjs(date).format(FORMATS.FORM_DATETIME);
 }
 
 export function capitalizeFirstLetter(word) {
@@ -134,7 +134,7 @@ export function initFlatpickr(component) {
     defaultHour: component.state.startTime ? component.state.startTime.split(':')[0] : '',
     defaultMinute: component.state.startTime ? component.state.startTime.split(':')[1] : '',
     enableTime: true,
-    dateFormat: 'd/m/Y H:i',
+    dateFormat: FORMATS.FLATPICKR_DATE,
     minDate: 'today',
     onOpen: (selectedDates, dateStr, instance) => {
       instance.setDate(instance.config.now, true, instance.config.dateFormat);
@@ -168,7 +168,7 @@ export function initFlatpickr(component) {
     defaultHour: component.state.endTime ? component.state.endTime.split(':')[0] : '',
     defaultMinute: component.state.endTime ? component.state.endTime.split(':')[1] : '',
     enableTime: true,
-    dateFormat: 'd/m/Y H:i',
+    dateFormat: FORMATS.FLATPICKR_DATE,
     minDate: component.state.startDate ?? 'today',
     onOpen: (selectedDates, dateStr, instance) => {
       instance.setDate(component.startPicker.selectedDates[0] ?? instance.config.now, true, instance.config.dateFormat);
@@ -198,9 +198,9 @@ export function initFlatpickr(component) {
 
 export function filterPoints(points, filterValue) {
   switch (filterValue) {
-    case Filter.FUTURE:
+    case FILTER.FUTURE:
       return [...points.filter((point) => getDateWithoutTime(new Date) < getDateWithoutTime(point.startDate))];
-    case Filter.PRESENT:
+    case FILTER.PRESENT:
       return [...points.filter((point) => {
         const currentDate = getDateWithoutTime(new Date);
         const pointStartDate = getDateWithoutTime(point.startDate);
@@ -208,7 +208,7 @@ export function filterPoints(points, filterValue) {
 
         return pointStartDate <= currentDate && pointEndDate >= currentDate;
       })];
-    case Filter.PAST:
+    case FILTER.PAST:
       return [...points.filter((point) => getDateWithoutTime(new Date) > getDateWithoutTime(point.startDate))];
   }
 }

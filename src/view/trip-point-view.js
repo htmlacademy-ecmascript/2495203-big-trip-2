@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {getIconSrcByEventType} from '../utils.js';
+import {SYMBOL} from '../constants';
 
 function getOffersTemplate(offersData) {
   if (!offersData.some(({checked}) => checked)) {
@@ -11,7 +12,7 @@ function getOffersTemplate(offersData) {
       ${offersData.map(({name, price, checked}) => checked ?
       `<li class="event__offer">
           <span class="event__offer-title">${name}</span>
-          &plus;&euro;&nbsp;
+          ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
           <span class="event__offer-price">${price}</span>
         </li>` :
       '')
@@ -31,13 +32,13 @@ function getTripPointTemplate(pointData) {
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${pointData.startDateISO}">${pointData.startTime}</time>
-                    &mdash;
+                    ${SYMBOL.MDASH}
                     <time class="event__end-time" datetime="${pointData.endDateISO}">${pointData.endTime}</time>
                   </p>
                   <p class="event__duration">${pointData.duration}</p>
                 </div>
                 <p class="event__price">
-                  &euro;&nbsp;<span class="event__price-value">${pointData.price}</span>
+                  ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="event__price-value">${pointData.price}</span>
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 ${pointData.type.options.length ? getOffersTemplate(pointData.type.options) : ''}

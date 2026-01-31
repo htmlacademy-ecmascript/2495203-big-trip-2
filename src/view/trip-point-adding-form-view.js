@@ -9,6 +9,7 @@ import {
 import {nanoid} from 'nanoid';
 import he from 'he';
 import {initFlatpickr} from '../utils.js';
+import {SYMBOL} from '../constants';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -54,7 +55,7 @@ function getOffers(offersData) {
             ${checked ? 'checked' : ''}>
             <label class="event__offer-label" for="event-offer-${alias}">
               <span class="event__offer-title">${name}</span>
-              &plus;&euro;&nbsp;
+              ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
               <span class="event__offer-price">${price}</span>
             </label>
           </div>
@@ -136,7 +137,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                   type="text"
                   name="event-start-time"
                   value="${state.formattedStartDate ?? ''}">
-                  ${(state.formattedStartDate && state.formattedEndDate) ? '&mdash;' : ''}
+                  ${(state.formattedStartDate && state.formattedEndDate) ? SYMBOL.MDASH : ''}
                   <label class="visually-hidden" for="event-end-time">To</label>
                   <input class="event__input  event__input--time"
                   id="event-end-time"
@@ -148,7 +149,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 <div class="event__field-group  event__field-group--price">
                   <label class="event__label" for="event-price-1">
                     <span class="visually-hidden">Price</span>
-                    &euro;
+                    ${SYMBOL.EURO}
                   </label>
                   <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${state.price}">
                 </div>

@@ -10,7 +10,7 @@ import {
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
-import {SortCriteria} from '../constants.js';
+import {SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 
 export default class TripPointsListPresenter {
@@ -22,7 +22,7 @@ export default class TripPointsListPresenter {
   #addButtonComponent = null;
   #addingFormComponent = null;
   #pointPresenters = new Map();
-  #currentSortCriteria = SortCriteria.START_DAY;
+  #currentSortCriteria = SORT_CRITERIA.START_DAY;
   #noPointsMessageView = null;
   #resetSortForm = null;
 
@@ -41,13 +41,13 @@ export default class TripPointsListPresenter {
 
   get points() {
     switch (this.#currentSortCriteria) {
-      case SortCriteria.DURATION: {
+      case SORT_CRITERIA.DURATION: {
         return [...this.#pointsModel.tripPoints.sort(sortByDurationAsc)];
       }
-      case SortCriteria.PRICE: {
+      case SORT_CRITERIA.PRICE: {
         return [...this.#pointsModel.tripPoints.sort(sortByPriceAsc)];
       }
-      case SortCriteria.START_DAY: {
+      case SORT_CRITERIA.START_DAY: {
         return [...this.#pointsModel.tripPoints.sort(sortByDateAsc)];
       }
     }
@@ -69,7 +69,7 @@ export default class TripPointsListPresenter {
       addButtonView: this.#addButtonComponent
     });
     this.#resetAllForms();
-    this.handleSortChange(SortCriteria.START_DAY);
+    this.handleSortChange(SORT_CRITERIA.START_DAY);
     this.#resetSortForm();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
   }
@@ -164,7 +164,7 @@ export default class TripPointsListPresenter {
   };
 
   #handleModelFilterChange = () => {
-    this.#currentSortCriteria = SortCriteria.START_DAY;
+    this.#currentSortCriteria = SORT_CRITERIA.START_DAY;
     this.#rerenderPoints();
   };
 }

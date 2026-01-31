@@ -14,8 +14,8 @@ import {
   filterPoints,
 } from '../utils.js';
 import {
-  Filter,
-  MAIN_INFO_MAX_CITIES
+  FILTER,
+  MAIN_INFO_MAX_CITIES, SYMBOL
 } from '../constants.js';
 
 export default class PointsModel {
@@ -31,7 +31,7 @@ export default class PointsModel {
   #pointRemoveObserver = null;
   #filterChangeListObserver = null;
   #filterChangeSortObserver = null;
-  #defaultFilter = Filter.EVERYTHING;
+  #defaultFilter = FILTER.EVERYTHING;
   #currentFilter = this.#defaultFilter;
 
   constructor() {
@@ -181,7 +181,7 @@ export default class PointsModel {
     return {
       'start': {
         'day': start.day,
-        'month': start.month === end.month ? '' : `&nbsp;${start.month}`,
+        'month': start.month === end.month ? '' : `${SYMBOL.NBSP}${start.month}`,
       },
       'end': {
         'day': end.day,
@@ -196,13 +196,13 @@ export default class PointsModel {
 
     if (cityNames.length <= MAIN_INFO_MAX_CITIES) {
       cityNames.forEach((city, index) => {
-        result += `${index !== 0 ? ' &mdash; ' : ''}`;
+        result += `${index !== 0 ? ` ${SYMBOL.MDASH} ` : ''}`;
         result += city;
       });
       return result;
     }
 
-    result = `${cityNames[0]} &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
+    result = `${cityNames[0]} ${SYMBOL.MDASH} ${SYMBOL.THREE_DOTS} ${SYMBOL.MDASH} ${cityNames[cityNames.length - 1]}`;
     return result;
   }
 }

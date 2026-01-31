@@ -1,6 +1,6 @@
 import {
   EVT_KEYDOWN,
-  KEY_ESCAPE, Mode
+  KEY_ESCAPE, MODE
 } from '../constants.js';
 import {
   remove,
@@ -18,7 +18,7 @@ export default class PointPresenter {
   #handleDataChange = null;
   #handleEditClick = null;
   #handleDeleteClick = null;
-  #defaultMode = Mode.VIEW;
+  #defaultMode = MODE.VIEW;
   #mode = this.#defaultMode;
 
   constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick}) {
@@ -67,7 +67,7 @@ export default class PointPresenter {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#mode === Mode.EDIT) {
+    if (this.#mode === MODE.EDIT) {
       replace(this.#editFormComponent, prevEditFormComponent);
     }
 
@@ -81,7 +81,7 @@ export default class PointPresenter {
   }
 
   resetForm() {
-    if (this.#mode === Mode.EDIT) {
+    if (this.#mode === MODE.EDIT) {
       this.#replaceFormToPoint();
       document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
     }
@@ -89,7 +89,7 @@ export default class PointPresenter {
 
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
-    this.#mode = Mode.EDIT;
+    this.#mode = MODE.EDIT;
   }
 
   #replaceFormToPoint() {

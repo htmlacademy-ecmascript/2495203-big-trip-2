@@ -1,9 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {NoPointsMessage} from '../constants';
+import {NO_POINTS_MESSAGE} from '../constants';
 
 function getMessageTemplate(filter) {
   return (
-    `<p class="trip-events__msg">${NoPointsMessage[filter.toUpperCase()]}</p>`
+    `<p class="trip-events__msg">${NO_POINTS_MESSAGE[filter.toUpperCase()]}</p>`
   );
 }
 

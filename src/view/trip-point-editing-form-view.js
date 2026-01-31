@@ -9,6 +9,7 @@ import {
   initFlatpickr
 } from '../utils.js';
 import he from 'he';
+import {SYMBOL} from '../constants.js';
 
 function getPointDetails(state) {
   if (!(state.type.options || state.destination.description)) {
@@ -48,7 +49,7 @@ function getOffersTemplate(offers) {
             ${checked ? 'checked' : ''}>
             <label class="event__offer-label" for="event-offer-${alias}">
               <span class="event__offer-title">${name}</span>
-              &plus;&euro;&nbsp;
+              ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
               <span class="event__offer-price">${price}</span>
             </label>
           </div>
@@ -118,7 +119,7 @@ function getEditFormTemplate(state, types, cities) {
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time">From</label>
               <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${state.formStartDate}">
-              &mdash;
+              ${SYMBOL.MDASH}
               <label class="visually-hidden" for="event-end-time">To</label>
               <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${state.formEndDate}">
             </div>
@@ -126,7 +127,7 @@ function getEditFormTemplate(state, types, cities) {
             <div class="event__field-group  event__field-group--price">
               <label class="event__label" for="event-price-1">
                 <span class="visually-hidden">Price</span>
-                &euro;
+                ${SYMBOL.EURO}
               </label>
               <input class="event__input  event__input--price"
               id="event-price-1"

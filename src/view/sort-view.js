@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {SortCriteria} from '../constants.js';
+import {SORT_CRITERIA} from '../constants.js';
 
 function getSortTemplate() {
   return (`
@@ -49,7 +49,7 @@ export default class SortView extends AbstractView {
   }
 
   resetForm() {
-    const daySortButton = this.element.querySelector(`[value="${SortCriteria.START_DAY}"]`);
+    const daySortButton = this.element.querySelector(`[value="${SORT_CRITERIA.START_DAY}"]`);
 
     daySortButton.checked = true;
   }
