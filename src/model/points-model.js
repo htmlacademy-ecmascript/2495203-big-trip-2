@@ -10,25 +10,40 @@ import {
   capitalizeFirstLetter,
   formatFormDate,
   getMainInfoFormattedDate,
-  sortByDateAsc
+  sortByDateAsc,
+  filterPoints,
 } from '../utils.js';
-import {MAIN_INFO_MAX_CITIES} from '../constants.js';
+import {
+  FILTER,
+  MAIN_INFO_MAX_CITIES, SYMBOL
+} from '../constants.js';
 
 export default class PointsModel {
   #tripPoints = mockPoints;
   #blankPoint = blankPoint;
   #pointTypes = pointTypes;
   #cities = cities;
-  #adaptedPointsData = null;
-  #adaptedBlankPointData = null;
-  #adaptedPointTypesData = null;
+  #adaptedPointsData;
+  #adaptedBlankPointData;
+  #adaptedPointTypesData;
+  #pointEditObserver;
+  #pointAddObserver;
+  #pointRemoveObserver;
+  #filterChangeListObserver;
+  #filterChangeSortObserver;
+  #defaultFilter = FILTER.EVERYTHING;
+  #currentFilter = this.#defaultFilter;
 
   constructor() {
     this.init();
   }
 
   get tripPoints() {
-    return this.#adaptedPointsData;
+    if (this.#currentFilter === this.#defaultFilter) {
+      return this.#adaptedPointsData;
+    }
+
+    return filterPoints([...this.#adaptedPointsData], this.#currentFilter);
   }
 
   get blankPoint() {
@@ -54,10 +69,66 @@ export default class PointsModel {
     };
   }
 
+  get currentFilter() {
+    return this.#currentFilter;
+  }
+
+  setPointEditObserver(observer) {
+    this.#pointEditObserver = observer;
+  }
+
+  setPointAddObserver(observer) {
+    this.#pointAddObserver = observer;
+  }
+
+  setPointRemoveObserver(observer) {
+    this.#pointRemoveObserver = observer;
+  }
+
+  setFilterChangeListObserver(observer) {
+    this.#filterChangeListObserver = observer;
+  }
+
+  setFilterChangeSortObserver(observer) {
+    this.#filterChangeSortObserver = observer;
+  }
+
   init() {
     this.#adaptPointsData();
     this.#adaptBlankPointData();
     this.#adaptPointTypesData();
+  }
+
+  updatePoint(changedData) {
+    this.#adaptedPointsData = [...this.#adaptedPointsData.map((item) => item.id === changedData.id ? changedData : item)];
+
+    this.#pointEditObserver(changedData);
+  }
+
+  addPoint(pointData) {
+    this.#adaptedPointsData = [
+      ...this.#adaptedPointsData,
+      pointData
+    ];
+
+    this.#pointAddObserver();
+  }
+
+  removePoint(pointId) {
+    const pointToDelete = this.#adaptedPointsData.find((point) => point.id === pointId);
+
+    this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
+    this.#pointRemoveObserver();
+  }
+
+  changeFilter(filterValue) {
+    if (filterValue === this.#currentFilter) {
+      return;
+    }
+
+    this.#currentFilter = filterValue;
+    this.#filterChangeListObserver();
+    this.#filterChangeSortObserver();
   }
 
   #adaptPointsData() {
@@ -110,7 +181,7 @@ export default class PointsModel {
     return {
       'start': {
         'day': start.day,
-        'month': start.month === end.month ? '' : `&nbsp;${start.month}`,
+        'month': start.month === end.month ? '' : `${SYMBOL.NBSP}${start.month}`,
       },
       'end': {
         'day': end.day,
@@ -125,13 +196,13 @@ export default class PointsModel {
 
     if (cityNames.length <= MAIN_INFO_MAX_CITIES) {
       cityNames.forEach((city, index) => {
-        result += `${index !== 0 ? ' &mdash; ' : ''}`;
+        result += `${index !== 0 ? ` ${SYMBOL.MDASH} ` : ''}`;
         result += city;
       });
       return result;
     }
-    result = `${cityNames[0]} &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
 
+    result = `${cityNames[0]} ${SYMBOL.MDASH} ${SYMBOL.THREE_DOTS} ${SYMBOL.MDASH} ${cityNames[cityNames.length - 1]}`;
     return result;
   }
 }

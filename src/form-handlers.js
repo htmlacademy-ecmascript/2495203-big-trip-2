@@ -2,6 +2,7 @@ import {
   capitalizeFirstLetter,
   getIconSrcByEventType
 } from './utils.js';
+import {UNSET_PRICE_VALUE} from './constants.js';
 
 export function typeChangeHandler({evt, component}) {
 
@@ -36,7 +37,7 @@ export function priceInputHandler({evt, component}) {
   const newPrice = evt.target.value;
 
   component.state = {
-    price: newPrice
+    price: newPrice ? parseInt(newPrice, 10) : UNSET_PRICE_VALUE
   };
 }
 

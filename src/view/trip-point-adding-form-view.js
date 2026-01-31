@@ -7,7 +7,9 @@ import {
   typeChangeHandler
 } from '../form-handlers.js';
 import {nanoid} from 'nanoid';
+import he from 'he';
 import {initFlatpickr} from '../utils.js';
+import {SYMBOL} from '../constants';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -43,12 +45,17 @@ function getOffers(offersData) {
     `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
       <div class="event__available-offers">
-        ${offersData.map(({id, name, price, alias}) => `
+        ${offersData.map(({id, name, price, alias, checked}) => `
           <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${alias}" type="checkbox" name="event-offer-${alias}" value="${id}">
+            <input class="event__offer-checkbox  visually-hidden"
+            id="event-offer-${alias}"
+            type="checkbox"
+            name="event-offer-${alias}"
+            value="${id}"
+            ${checked ? 'checked' : ''}>
             <label class="event__offer-label" for="event-offer-${alias}">
               <span class="event__offer-title">${name}</span>
-              &plus;&euro;&nbsp;
+              ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
               <span class="event__offer-price">${price}</span>
             </label>
           </div>
@@ -62,7 +69,7 @@ function getDescription(destination) {
   return (
     `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      <p class="event__destination-description">${destination.description}</p>
+      <p class="event__destination-description">${he.encode(destination.description)}</p>
       ${getPhotosList(destination)}
     </section>`
   );
@@ -99,11 +106,11 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
             <form class="event event--edit" action="#" method="post">
               <header class="event__header">
                 <div class="event__type-wrapper">
-                  <label class="event__type  event__type-btn" for="event-type-toggle-1">
+                  <label class="event__type  event__type-btn" for="event-type-toggle">
                     <span class="visually-hidden">Choose event type</span>
-                    <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                    <img class="event__type-icon" width="17" height="17" src="img/icons/${state.type.name}.png" alt="${state.type.name}">
                   </label>
-                  <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                  <input class="event__type-toggle  visually-hidden" id="event-type-toggle" type="checkbox">
 
                   ${getEventTypesListTemplate(pointTypes)}
                 </div>
@@ -130,7 +137,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                   type="text"
                   name="event-start-time"
                   value="${state.formattedStartDate ?? ''}">
-                  ${(state.formattedStartDate && state.formattedEndDate) ? '&mdash;' : ''}
+                  ${(state.formattedStartDate && state.formattedEndDate) ? SYMBOL.MDASH : ''}
                   <label class="visually-hidden" for="event-end-time">To</label>
                   <input class="event__input  event__input--time"
                   id="event-end-time"
@@ -142,7 +149,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 <div class="event__field-group  event__field-group--price">
                   <label class="event__label" for="event-price-1">
                     <span class="visually-hidden">Price</span>
-                    &euro;
+                    ${SYMBOL.EURO}
                   </label>
                   <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${state.price}">
                 </div>
@@ -157,19 +164,21 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
 }
 
 export default class TripPointAddingFormView extends AbstractStatefulView {
-  #cities = null;
-  #pointTypes = null;
-  #form = null;
-  #cancelButton = null;
-  #handleFormSubmit = null;
-  #typeToggler = null;
-  #typesDropdown = null;
-  #typeOutput = null;
-  #typeIcon = null;
-  #destinationInput = null;
-  #priceInput = null;
-  #offersContainer = null;
-  #addButtonView = null;
+  #cities;
+  #pointTypes;
+  #form;
+  #cancelButton;
+  #handleFormSubmit;
+  #typeToggler;
+  #typesDropdown;
+  #typeOutput;
+  #typeIcon;
+  #destinationInput;
+  #priceInput;
+  #offersContainer;
+  #addButtonView;
+  #startPicker;
+  #endPicker;
 
   constructor({cities, pointTypes, blankPoint, onFormSubmit, addButtonView}) {
     super();
@@ -214,12 +223,42 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
     return this.#typeToggler;
   }
 
+  get startPicker() {
+    return this.#startPicker;
+  }
+
+  get endPicker() {
+    return this.#endPicker;
+  }
+
+  set startPicker(pickerInstance) {
+    this.#startPicker = pickerInstance;
+  }
+
+  set endPicker(pickerInstance) {
+    this.#endPicker = pickerInstance;
+  }
+
   set state(update) {
     this._setState(update);
   }
 
   _restoreHandlers() {
     this.#setHandlers();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#startPicker) {
+      this.#startPicker.destroy();
+      this.#startPicker = null;
+    }
+
+    if (this.#endPicker) {
+      this.#endPicker.destroy();
+      this.#endPicker = null;
+    }
   }
 
   #setHandlers = () => {

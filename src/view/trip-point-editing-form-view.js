@@ -5,10 +5,11 @@ import {
   priceInputHandler,
   typeChangeHandler
 } from '../form-handlers.js';
-
 import {
   initFlatpickr
 } from '../utils.js';
+import he from 'he';
+import {SYMBOL} from '../constants.js';
 
 function getPointDetails(state) {
   if (!(state.type.options || state.destination.description)) {
@@ -27,7 +28,7 @@ function getDescriptionTemplate(description) {
   return (
     `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${description}</p>
+        <p class="event__destination-description">${he.encode(description)}</p>
     </section>`
   );
 }
@@ -48,7 +49,7 @@ function getOffersTemplate(offers) {
             ${checked ? 'checked' : ''}>
             <label class="event__offer-label" for="event-offer-${alias}">
               <span class="event__offer-title">${name}</span>
-              &plus;&euro;&nbsp;
+              ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
               <span class="event__offer-price">${price}</span>
             </label>
           </div>
@@ -62,7 +63,7 @@ function getCitiesSuggestions(cities) {
   return (
     `<datalist id="destination-list-1">
       ${cities.map(({cityName}) => `
-        <option value="${cityName}"></option>
+        <option value="${he.encode(cityName)}"></option>
       `).join('')}
     </datalist>`
   );
@@ -118,7 +119,7 @@ function getEditFormTemplate(state, types, cities) {
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time">From</label>
               <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${state.formStartDate}">
-              &mdash;
+              ${SYMBOL.MDASH}
               <label class="visually-hidden" for="event-end-time">To</label>
               <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${state.formEndDate}">
             </div>
@@ -126,9 +127,13 @@ function getEditFormTemplate(state, types, cities) {
             <div class="event__field-group  event__field-group--price">
               <label class="event__label" for="event-price-1">
                 <span class="visually-hidden">Price</span>
-                &euro;
+                ${SYMBOL.EURO}
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${state.price}">
+              <input class="event__input  event__input--price"
+              id="event-price-1"
+              type="number"
+              name="event-price"
+              value="${state.price}">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -144,27 +149,32 @@ function getEditFormTemplate(state, types, cities) {
 }
 
 export default class TripPointEditingFormView extends AbstractStatefulView {
-  #pointTypes = null;
-  #cities = null;
-  #form = null;
-  #rollupButton = null;
-  #handleFormSubmit = null;
-  #handleRollupButtonClick = null;
-  #typeToggler = null;
-  #typesDropdown = null;
-  #typeOutput = null;
-  #typeIcon = null;
-  #destinationInput = null;
-  #priceInput = null;
-  #offersContainer = null;
+  #pointTypes;
+  #cities;
+  #form;
+  #rollupButton;
+  #handleFormSubmit;
+  #handleRollupButtonClick;
+  #handleDeleteButtonClick;
+  #typeToggler;
+  #typesDropdown;
+  #typeOutput;
+  #typeIcon;
+  #destinationInput;
+  #priceInput;
+  #offersContainer;
+  #startPicker;
+  #endPicker;
+  #deleteButton;
 
-  constructor({pointData, pointTypes, cities, onFormSubmit, onRollupButtonClick}) {
+  constructor({pointData, pointTypes, cities, onFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(this.#parsePointDataToState(pointData));
     this.#pointTypes = pointTypes;
     this.#cities = cities;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleRollupButtonClick = onRollupButtonClick;
+    this.#handleDeleteButtonClick = onDeleteClick;
 
     this.#setHandlers();
   }
@@ -197,12 +207,42 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     return this.#typeToggler;
   }
 
+  get startPicker() {
+    return this.#startPicker;
+  }
+
+  get endPicker() {
+    return this.#endPicker;
+  }
+
+  set startPicker(pickerInstance) {
+    this.#startPicker = pickerInstance;
+  }
+
+  set endPicker(pickerInstance) {
+    this.#endPicker = pickerInstance;
+  }
+
   set state(update) {
     this._setState(update);
   }
 
   _restoreHandlers() {
     this.#setHandlers();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#startPicker) {
+      this.#startPicker.destroy();
+      this.#startPicker = null;
+    }
+
+    if (this.#endPicker) {
+      this.#endPicker.destroy();
+      this.#endPicker = null;
+    }
   }
 
   parseStateToPointData() {
@@ -219,9 +259,12 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     this.#destinationInput = this.element.querySelector('.event__input--destination');
     this.#priceInput = this.element.querySelector('.event__input--price');
     this.#offersContainer = this.element.querySelector('.event__available-offers');
+    this.#deleteButton = this.element.querySelector('.event__reset-btn');
 
     this.#form.addEventListener('submit', this.#formSubmitHandler);
     this.#rollupButton.addEventListener('click', this.#rollupButtonClickHandler);
+    this.#deleteButton.addEventListener('click', this.#deleteButtonClickHandler);
+
     this.#typesDropdown.addEventListener('change', (evt) => {
       typeChangeHandler({evt, component: this});
     });
@@ -252,5 +295,9 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
   #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
+  };
+
+  #deleteButtonClickHandler = () => {
+    this.#handleDeleteButtonClick(this.state.id);
   };
 }

@@ -1,6 +1,6 @@
 import {
   EVT_KEYDOWN,
-  KEY_ESCAPE
+  KEY_ESCAPE, MODE
 } from '../constants.js';
 import {
   remove,
@@ -10,24 +10,22 @@ import {
 import TripPointView from '../view/trip-point-view.js';
 import TripPointEditingFormView from '../view/trip-point-editing-form-view.js';
 
-const Mode = {
-  VIEW: 'VIEW',
-  EDIT: 'EDIT'
-};
 export default class PointPresenter {
-  #pointComponent = null;
-  #editFormComponent = null;
-  #listElement = null;
-  #pointData = null;
-  #handleDataChange = null;
-  #handleEditClick = null;
-  #defaultMode = Mode.VIEW;
+  #pointComponent;
+  #editFormComponent;
+  #listElement;
+  #pointData;
+  #handleDataChange;
+  #handleEditClick;
+  #handleDeleteClick;
+  #defaultMode = MODE.VIEW;
   #mode = this.#defaultMode;
 
-  constructor({listElement, handleDataChange, handlePointEditClick}) {
+  constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick}) {
     this.#listElement = listElement;
     this.#handleDataChange = handleDataChange;
     this.#handleEditClick = handlePointEditClick;
+    this.#handleDeleteClick = handleDeleteClick;
   }
 
   init(pointData, pointTypes, cities) {
@@ -55,11 +53,12 @@ export default class PointPresenter {
       onRollupButtonClick: () => {
         this.#replaceFormToPoint();
         document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
-      }
+      },
+      onDeleteClick: this.#handleDeleteClick
     });
     this.#pointData = pointData;
 
-    if (prevPointComponent === null || prevEditFormComponent === null) {
+    if (!prevPointComponent || !prevEditFormComponent) {
       render(this.#pointComponent, this.#listElement);
       return;
     }
@@ -68,7 +67,7 @@ export default class PointPresenter {
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#mode === Mode.EDIT) {
+    if (this.#mode === MODE.EDIT) {
       replace(this.#editFormComponent, prevEditFormComponent);
     }
 
@@ -82,7 +81,7 @@ export default class PointPresenter {
   }
 
   resetForm() {
-    if (this.#mode === Mode.EDIT) {
+    if (this.#mode === MODE.EDIT) {
       this.#replaceFormToPoint();
       document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
     }
@@ -90,7 +89,7 @@ export default class PointPresenter {
 
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
-    this.#mode = Mode.EDIT;
+    this.#mode = MODE.EDIT;
   }
 
   #replaceFormToPoint() {

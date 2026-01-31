@@ -5,7 +5,7 @@ function createAddEventButtonTemplate() {
 }
 
 export default class TripPointAddingButtonView extends AbstractView {
-  #clickHandler = null;
+  #clickHandler;
 
   constructor({onButtonClick}) {
     super();

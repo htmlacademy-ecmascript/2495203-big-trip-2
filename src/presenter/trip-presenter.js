@@ -1,45 +1,44 @@
 import {render} from '../framework/render.js';
-import SortView from '../view/sort-view.js';
 import TripPointsListView from '../view/trip-points-list-view.js';
 import TripPointsListPresenter from './trip-points-list-presenter.js';
-import MessageView from '../view/message-view.js';
+import SortPresenter from './sort-presenter.js';
 
 export default class TripPresenter {
-  #tripContainer = null;
-  #pointsModel = null;
-  #sortComponent = null;
-  #pointsListComponent = null;
-  #pointsListPresenter = null;
-  #pointsCount = null;
-  #messageComponent = null;
-  #addButtonComponent = null;
+  #mainInfoContainer;
+  #tripContainer;
+  #pointsModel;
+  #sortPresenter;
+  #pointsListComponent;
+  #pointsListPresenter;
+  #addButtonComponent;
 
-  constructor({tripContainer, pointsModel}) {
+  constructor({mainInfoContainer, tripContainer, pointsModel}) {
     this.#pointsModel = pointsModel;
+    this.#mainInfoContainer = mainInfoContainer;
     this.#tripContainer = tripContainer;
-    this.#pointsCount = this.#pointsModel.pointsCount;
     this.#pointsListComponent = new TripPointsListView();
     this.#pointsListPresenter = new TripPointsListPresenter({
       listElement: this.#pointsListComponent.element,
       pointsModel: this.#pointsModel,
+      tripContainer: this.#tripContainer,
+      resetSortForm: this.#resetSortForm
     });
-    this.#sortComponent = new SortView({
-      onSortChange: this.#pointsListPresenter.handleSortChange
+    this.#sortPresenter = new SortPresenter({
+      tripContainer: this.#tripContainer,
+      handleSortChange: this.#pointsListPresenter.handleSortChange,
+      pointsModel: this.#pointsModel
     });
-    this.#messageComponent = new MessageView();
+
+    this.#pointsModel.setPointAddObserver(this.#handleModelPointAdd);
   }
 
   init({addButtonView}) {
     this.#addButtonComponent = addButtonView;
-    if (!this.#pointsCount) {
-      this.#renderMessage();
-      return;
-    }
     this.#renderPointsList();
   }
 
   handleAddingButtonClick() {
-    this.#removeMessage();
+    this.#pointsListPresenter.removeMessage();
     this.#createListLayout();
     this.#pointsListPresenter.openAddingForm();
   }
@@ -50,15 +49,18 @@ export default class TripPresenter {
   }
 
   #createListLayout() {
-    render(this.#sortComponent, this.#tripContainer);
+    this.#sortPresenter.init();
     render(this.#pointsListComponent, this.#tripContainer);
   }
 
-  #renderMessage() {
-    render(this.#messageComponent, this.#tripContainer);
-  }
+  #resetSortForm = () => {
+    if (this.#sortPresenter) {
+      this.#sortPresenter.resetForm();
+    }
+  };
 
-  #removeMessage() {
-    this.#messageComponent.removeElement();
-  }
+  #handleModelPointAdd = () => {
+    this.#pointsListPresenter.clearPointsList();
+    this.init({addButtonView: this.#addButtonComponent});
+  };
 }

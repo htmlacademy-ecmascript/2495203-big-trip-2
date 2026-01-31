@@ -1,11 +1,12 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {SYMBOL} from '../constants';
 
 function createStartDateTemplate(start) {
   return `${start.day} ${start.month}`;
 }
 
 function createEndDateTemplate(end) {
-  return `&nbsp;&mdash;&nbsp;${end.day}&nbsp;${end.month}`;
+  return `${SYMBOL.NBSP}${SYMBOL.MDASH}${SYMBOL.NBSP}${end.day}${SYMBOL.NBSP}${end.month}`;
 }
 
 function createDatesTemplate(dates) {
@@ -29,14 +30,14 @@ function createTripMainInfoTemplate(mainInfo) {
             </div>
 
             <p class="trip-info__cost">
-              Total: &euro;&nbsp;<span class="trip-info__cost-value">1230</span>
+              Total: ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="trip-info__cost-value">1230</span>
             </p>
           </section>`
   );
 }
 
 export default class TripMainInfoView extends AbstractView {
-  #mainInfo = null;
+  #mainInfo;
 
   constructor({mainInfo}) {
     super();
