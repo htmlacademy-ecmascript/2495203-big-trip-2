@@ -45,7 +45,7 @@ export function offerClickHandler({evt, component}) {
   const clickedOffer = evt.target;
   const clickedOfferId = clickedOffer.value;
   const typeCopy = structuredClone(component.state.type);
-  const targetOption = typeCopy.options.find(({id}) => id === Number(clickedOfferId));
+  const targetOption = typeCopy.options.find(({id}) => id === clickedOfferId);
 
   targetOption.checked = clickedOffer.checked;
   component.state = {

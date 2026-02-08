@@ -1,7 +1,3 @@
-import {mockPoints} from '../mock/points.js';
-import {blankPoint} from '../mock/blank-point.js';
-import {pointTypes} from '../mock/point-types.js';
-import {cities} from '../mock/cities.js';
 import {
   getTripPointFormattedDate,
   getHTMLDatetime,
@@ -19,13 +15,14 @@ import {
 } from '../constants.js';
 
 export default class PointsModel {
-  #tripPoints = mockPoints;
-  #blankPoint = blankPoint;
-  #pointTypes = pointTypes;
-  #cities = cities;
+  #tripApiService;
+  #tripPoints;
+  #pointTypes;
+  #cities;
   #adaptedPointsData;
   #adaptedBlankPointData;
   #adaptedPointTypesData;
+  #adaptedCities;
   #pointEditObserver;
   #pointAddObserver;
   #pointRemoveObserver;
@@ -34,8 +31,8 @@ export default class PointsModel {
   #defaultFilter = FILTER.EVERYTHING;
   #currentFilter = this.#defaultFilter;
 
-  constructor() {
-    this.init();
+  constructor({tripApiService}) {
+    this.#tripApiService = tripApiService;
   }
 
   get tripPoints() {
@@ -55,7 +52,7 @@ export default class PointsModel {
   }
 
   get cities() {
-    return structuredClone(this.#cities);
+    return structuredClone(this.#adaptedCities);
   }
 
   get pointsCount() {
@@ -93,16 +90,42 @@ export default class PointsModel {
     this.#filterChangeSortObserver = observer;
   }
 
-  init() {
-    this.#adaptPointsData();
-    this.#adaptBlankPointData();
-    this.#adaptPointTypesData();
+  async init() {
+    try {
+      const incomingData = Promise.all([
+        this.#tripApiService.points,
+        this.#tripApiService.pointTypes,
+        this.#tripApiService.cities
+      ]);
+      const [points, pointTypes, cities] = await incomingData;
+
+      this.#tripPoints = [...points];
+      this.#pointTypes = [...pointTypes];
+      this.#cities = [...cities];
+
+      this.#adaptPointTypesDataToClient();
+      this.#adaptCitiesDataToClient();
+      this.#adaptPointsDataToClient();
+      this.#adaptBlankPointDataToClient();
+    } catch (err) {
+      this.#tripPoints = [];
+      this.#pointTypes = [];
+      this.#cities = [];
+    }
   }
 
-  updatePoint(changedData) {
-    this.#adaptedPointsData = [...this.#adaptedPointsData.map((item) => item.id === changedData.id ? changedData : item)];
+  async updatePoint(changedData) {
+    const adaptedPoint = this.#adaptPointToServer(changedData);
 
-    this.#pointEditObserver(changedData);
+    try {
+      const response = await this.#tripApiService.updatePoint(adaptedPoint);
+
+      this.#adaptPointToClient(response);
+      this.#adaptedPointsData = [...this.#adaptedPointsData.map((item) => item.id === response.id ? response : item)];
+      this.#pointEditObserver(changedData);
+    } catch (err) {
+      throw new Error('Can\'t update point');
+    }
   }
 
   addPoint(pointData) {
@@ -131,35 +154,108 @@ export default class PointsModel {
     this.#filterChangeSortObserver();
   }
 
-  #adaptPointsData() {
-    const tripPointsData = structuredClone(this.#tripPoints);
+  #adaptPointToClient(pointData) {
+    pointData.startDate = new Date(Date.parse(pointData['date_from']));
+    pointData.endDate = new Date(Date.parse(pointData['date_to']));
+    pointData.price = pointData['base_price'];
+    pointData.isFavorite = pointData['is_favorite'];
+    pointData.type = structuredClone(this.#adaptedPointTypesData.find((type) => type.name === pointData.type));
+    pointData.destination = structuredClone(this.#adaptedCities.find((city) => city.id === pointData.destination));
+    pointData.type.options.forEach((option) => {
+      if (pointData['offers'].includes(option.id)) {
+        option.checked = true;
+      }
+    });
+
+    pointData.formattedDate = getTripPointFormattedDate(pointData.startDate);
+    pointData.startDateISO = pointData.startDate.toISOString();
+    pointData.endDateISO = pointData.endDate.toISOString();
+    pointData.htmlStartDate = getHTMLDatetime(pointData.startDate);
+    pointData.htmlEndDate = getHTMLDatetime(pointData.endDate);
+    pointData.duration = formatDateDifference(pointData.startDate, pointData.endDate);
+    pointData.startTime = getTime(pointData.startDate);
+    pointData.endTime = getTime(pointData.endDate);
+    pointData.formStartDate = formatFormDate(pointData.startDate);
+    pointData.formEndDate = formatFormDate(pointData.endDate);
+    pointData.headerFormattedStartDate = getMainInfoFormattedDate(pointData.startDate);
+    pointData.headerFormattedEndDate = getMainInfoFormattedDate(pointData.endDate);
+
+    delete pointData['base_price'];
+    delete pointData['date_from'];
+    delete pointData['date_to'];
+    delete pointData['is_favorite'];
+    delete pointData['offers'];
+  }
+
+  #adaptPointsDataToClient() {
+    const tripPointsData = [...this.#tripPoints];
     tripPointsData.forEach((pointData) => {
-      pointData.formattedDate = getTripPointFormattedDate(pointData.startDate);
-      pointData.startDateISO = pointData.startDate.toISOString();
-      pointData.endDateISO = pointData.endDate.toISOString();
-      pointData.htmlStartDate = getHTMLDatetime(pointData.startDate);
-      pointData.htmlEndDate = getHTMLDatetime(pointData.endDate);
-      pointData.duration = formatDateDifference(pointData.startDate, pointData.endDate);
-      pointData.startTime = getTime(pointData.startDate);
-      pointData.endTime = getTime(pointData.endDate);
-      pointData.formStartDate = formatFormDate(pointData.startDate);
-      pointData.formEndDate = formatFormDate(pointData.endDate);
-      pointData.headerFormattedStartDate = getMainInfoFormattedDate(pointData.startDate);
-      pointData.headerFormattedEndDate = getMainInfoFormattedDate(pointData.endDate);
+      this.#adaptPointToClient(pointData);
     });
     this.#adaptedPointsData = tripPointsData.sort(sortByDateAsc);
   }
 
-  #adaptBlankPointData() {
-    this.#adaptedBlankPointData = structuredClone(this.#blankPoint);
+  #adaptBlankPointDataToClient() {
+    const typeFlight = this.#adaptedPointTypesData.find((pointType) => pointType.name === 'flight');
+
+    this.#adaptedBlankPointData = {
+      type: structuredClone(typeFlight),
+      price: 0
+    };
   }
 
-  #adaptPointTypesData() {
+  #adaptPointTypesDataToClient() {
     const pointTypesData = structuredClone(this.#pointTypes);
-    pointTypesData.forEach((typeData) => {
+    pointTypesData.forEach((typeData, typeIndex) => {
+      typeData.id = typeIndex;
+      typeData.name = typeData['type'];
+      typeData.options = [...typeData['offers']];
       typeData.capitalizedName = capitalizeFirstLetter(typeData.name);
+      typeData.options.forEach((option) => {
+        option.name = option.title;
+        option.alias = option.id;
+        option.checked = false;
+
+        delete option.title;
+      });
+
+      delete typeData['type'];
+      delete typeData['offers'];
     });
     this.#adaptedPointTypesData = pointTypesData;
+  }
+
+  #adaptCitiesDataToClient() {
+    const cities = [...this.#cities];
+
+    cities.forEach((city) => {
+      city.cityName = city['name'];
+      city.photos = structuredClone(city['pictures']);
+
+      delete city['name'];
+      delete city['pictures'];
+    });
+
+    this.#adaptedCities = cities;
+  }
+
+  #adaptPointToServer(point) {
+    return {
+      'id': point.id,
+      'base_price': point.price,
+      'date_from': point.startDateISO,
+      'date_to': point.endDateISO,
+      'destination': point.destination.id,
+      'is_favorite': point.isFavorite,
+      'offers': point.type.options
+        .map((option) => {
+          if (option.checked) {
+            return option.id;
+          }
+        })
+        .filter((option) => option),
+      'type': point.type.name,
+    };
   }
 
   #getMainInfoDates() {
