@@ -2,7 +2,7 @@ import {
   getTripPointFormattedDate,
   getHTMLDatetime,
   getTime,
-  formatDateDifference,
+  formatDuration,
   capitalizeFirstLetter,
   formatFormDate,
   getMainInfoFormattedDate,
@@ -92,12 +92,11 @@ export default class PointsModel {
 
   async init() {
     try {
-      const incomingData = Promise.all([
+      const [points, pointTypes, cities] = await Promise.all([
         this.#tripApiService.points,
         this.#tripApiService.pointTypes,
         this.#tripApiService.cities
       ]);
-      const [points, pointTypes, cities] = await incomingData;
 
       this.#tripPoints = [...points];
       this.#pointTypes = [...pointTypes];
@@ -172,7 +171,7 @@ export default class PointsModel {
     pointData.endDateISO = pointData.endDate.toISOString();
     pointData.htmlStartDate = getHTMLDatetime(pointData.startDate);
     pointData.htmlEndDate = getHTMLDatetime(pointData.endDate);
-    pointData.duration = formatDateDifference(pointData.startDate, pointData.endDate);
+    pointData.duration = formatDuration(pointData.startDate, pointData.endDate);
     pointData.startTime = getTime(pointData.startDate);
     pointData.endTime = getTime(pointData.endDate);
     pointData.formStartDate = formatFormDate(pointData.startDate);

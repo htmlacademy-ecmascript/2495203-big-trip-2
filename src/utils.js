@@ -35,7 +35,7 @@ export function getDateWithoutTime(date) {
   return dayjs(date).format(FORMATS.FULL_DATE_HYPHEN);
 }
 
-export function formatDateDifference(start, end) {
+export function formatDuration(start, end) {
   const startInstance = dayjs(start);
   const endInstance = dayjs(end);
   let resultDifferenceTime = '';
@@ -118,7 +118,7 @@ export function initFlatpickr(component) {
         headerFormattedEndDate: isToChangeEndDate ? getMainInfoFormattedDate(newDate) : component.state.headerFormattedEndDate,
       });
       component.state = {
-        duration: formatDateDifference(component.state.startDate, component.state.endDate)
+        duration: formatDuration(component.state.startDate, component.state.endDate)
       };
     }
   });
@@ -143,7 +143,7 @@ export function initFlatpickr(component) {
         formattedDate: getTripPointFormattedDate(component.state.startDate ?? newDate),
         htmlEndDate: getHTMLDatetime(newDate),
         htmlStartDate: component.state.htmlStartDate ?? getHTMLDatetime(newDate),
-        duration: formatDateDifference(component.state.startDate ?? newDate, newDate),
+        duration: formatDuration(component.state.startDate ?? newDate, newDate),
         endTime: getTime(newDate),
         startTime: component.state.startTime ?? getTime(newDate),
         formEndDate: formatFormDate(newDate),
