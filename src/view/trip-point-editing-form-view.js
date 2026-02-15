@@ -9,7 +9,7 @@ import {
   initFlatpickr
 } from '../utils.js';
 import he from 'he';
-import {SYMBOL} from '../constants.js';
+import {BUTTON_TEXT, SYMBOL} from '../constants.js';
 
 function getPointDetails(state) {
   if (!(state.type.options || state.destination.description)) {
@@ -136,7 +136,11 @@ function getEditFormTemplate(state, types, cities) {
               value="${state.price}">
             </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+            <button class="event__save-btn  btn  btn--blue"
+                    type="submit"
+                    ${state.isDisabled ? 'disabled' : ''}>
+                    ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+            </button>
             <button class="event__reset-btn" type="reset">Delete</button>
             <button class="event__rollup-btn" type="button">
               <span class="visually-hidden">Open event</span>
@@ -170,6 +174,11 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
   constructor({pointData, pointTypes, cities, onFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(this.#parsePointDataToState(pointData));
+    this.state = {
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
+    };
     this.#pointTypes = pointTypes;
     this.#cities = cities;
     this.#handleFormSubmit = onFormSubmit;
@@ -246,7 +255,12 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
   }
 
   parseStateToPointData() {
-    return {...this._state};
+    const data = {...this._state};
+    delete data.isSaving;
+    delete data.isDeleting;
+    delete data.isDisabled;
+
+    return data;
   }
 
   #setHandlers = () => {

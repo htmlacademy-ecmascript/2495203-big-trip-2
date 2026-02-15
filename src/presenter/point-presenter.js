@@ -87,6 +87,23 @@ export default class PointPresenter {
     }
   }
 
+  setPointUpdateAborting = () => {
+    switch (this.#mode) {
+      case MODE.VIEW:
+        this.#pointComponent.shake();
+        break;
+      case MODE.EDIT:
+        this.#resetEditFormInteractiveInterface();
+        this.#editFormComponent.shake();
+        break;
+    }
+  };
+
+  handleSuccessfullUpdate() {
+    this.#replaceFormToPoint();
+    document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
+  }
+
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
     this.#mode = MODE.EDIT;
@@ -116,9 +133,24 @@ export default class PointPresenter {
   #handleEditFormSubmit = () => {
     const changedData = {...this.#editFormComponent.parseStateToPointData()};
 
+    this.#setEditFormSaving();
     this.#handleDataChange(changedData);
-    this.#replaceFormToPoint();
-    document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   };
+
+  #setEditFormSaving = () => {
+    this.#editFormComponent.updateElement({
+      isSaving: true,
+      isDisabled: true,
+    });
+  };
+
+  #resetEditFormInteractiveInterface = () => {
+    this.#editFormComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
+    });
+  };
+
 }
 

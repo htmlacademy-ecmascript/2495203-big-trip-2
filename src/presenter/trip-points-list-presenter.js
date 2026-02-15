@@ -141,8 +141,12 @@ export default class TripPointsListPresenter {
     render(this.#noPointsMessageView, this.#tripContainer);
   }
 
-  #handlePointChange = (changedPoint) => {
-    this.#pointsModel.updatePoint(changedPoint);
+  #handlePointChange = async (changedPoint) => {
+    try {
+      await this.#pointsModel.updatePoint(changedPoint);
+    } catch (error) {
+      this.#pointPresenters.get(changedPoint.id).setPointUpdateAborting();
+    }
   };
 
   #handleAddFormSubmit = (pointData) => {
@@ -156,6 +160,7 @@ export default class TripPointsListPresenter {
 
   #handleModelPointChange = (changedPoint) => {
     this.#pointPresenters.get(changedPoint.id).init(changedPoint, this.#pointTypes, this.#cities);
+    this.#pointPresenters.get(changedPoint.id).handleSuccessfullUpdate();
     this.#rerenderPoints();
   };
 

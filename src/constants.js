@@ -19,6 +19,12 @@ export const NO_POINTS_MESSAGE = {
   PRESENT: 'There are no present events now',
   PAST: 'There are no past events now',
 };
+export const BUTTON_TEXT = {
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  DELETE: 'Delete',
+  DELETING: 'Deleting...',
+};
 export const SYMBOL = {
   MDASH: '&mdash;',
   NBSP: '&nbsp;',

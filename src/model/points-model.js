@@ -114,9 +114,8 @@ export default class PointsModel {
   }
 
   async updatePoint(changedData) {
-    const adaptedPoint = this.#adaptPointToServer(changedData);
-
     try {
+      const adaptedPoint = this.#adaptPointToServer(changedData);
       const response = await this.#tripApiService.updatePoint(adaptedPoint);
 
       this.#adaptPointToClient(response);
