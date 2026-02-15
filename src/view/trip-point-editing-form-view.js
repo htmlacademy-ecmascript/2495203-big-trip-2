@@ -176,12 +176,12 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
 
   constructor({pointData, pointTypes, cities, onFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
-    this._setState(this.#parsePointDataToState(pointData));
-    this.state = {
+    this._setState({
+      ...this.#parsePointDataToState(pointData),
       isSaving: false,
       isDeleting: false,
       isDisabled: false,
-    };
+    });
     this.#pointTypes = pointTypes;
     this.#cities = cities;
     this.#handleFormSubmit = onFormSubmit;

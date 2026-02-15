@@ -97,6 +97,14 @@ export default class TripPointsListPresenter {
     this.removeMessage();
   };
 
+  blockInterface() {
+    this.#interfaceBlocker.block();
+  }
+
+  unblockInterface() {
+    this.#interfaceBlocker.unblock();
+  }
+
   removeMessage() {
     if (this.#noPointsMessageView) {
       remove(this.#noPointsMessageView);
@@ -148,26 +156,55 @@ export default class TripPointsListPresenter {
     render(this.#noPointsMessageView, this.#tripContainer);
   }
 
+  #setAddFormSaving = () => {
+    this.blockInterface();
+    if (this.#addingFormComponent) {
+      this.#addingFormComponent.updateElement({
+        isSaving: true,
+        isDisabled: true
+      });
+    }
+  };
+
+  #setAddFormAborting = () => {
+    this.unblockInterface();
+    if (this.#addingFormComponent) {
+      this.#addingFormComponent.updateElement({
+        isSaving: false,
+        isDisabled: false
+      });
+      this.#addingFormComponent.shake();
+    }
+  };
+
   #handlePointChange = async (changedPoint) => {
     try {
-      this.#interfaceBlocker.block();
+      this.blockInterface();
       await this.#pointsModel.updatePoint(changedPoint);
-      this.#interfaceBlocker.unblock();
+      this.unblockInterface();
     } catch (error) {
       this.#pointPresenters.get(changedPoint.id).setPointAborting();
     }
   };
 
-  #handleAddFormSubmit = (pointData) => {
-    this.#pointsModel.addPoint(pointData);
-    this.#enableButton();
+  #handleAddFormSubmit = async (pointData) => {
+    try {
+      this.#setAddFormSaving();
+      await this.#pointsModel.addPoint(pointData);
+
+      this.#enableButton();
+      remove(this.#addingFormComponent);
+    } catch (error) {
+      this.#setAddFormAborting();
+    }
   };
 
   #handleDeleteClick = async (pointId) => {
     try {
       this.#pointPresenters.get(pointId).setPointDeleting();
       await this.#pointsModel.removePoint(pointId);
-      this.#interfaceBlocker.unblock();
+
+      this.unblockInterface();
     } catch (error) {
       this.#pointPresenters.get(pointId).setPointAborting();
     }

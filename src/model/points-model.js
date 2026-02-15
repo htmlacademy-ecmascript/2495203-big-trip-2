@@ -126,13 +126,19 @@ export default class PointsModel {
     }
   }
 
-  addPoint(pointData) {
-    this.#adaptedPointsData = [
-      ...this.#adaptedPointsData,
-      pointData
-    ];
+  async addPoint(pointData) {
+    try {
+      const response = await this.#tripApiService.addPoint(this.#adaptPointToServer(pointData, true));
 
-    this.#pointAddObserver();
+      this.#adaptPointToClient(response);
+      this.#adaptedPointsData = [
+        ...this.#adaptedPointsData,
+        response
+      ];
+      this.#pointAddObserver();
+    } catch (error) {
+      throw new Error('Can\'t add new point');
+    }
   }
 
   async removePoint(pointId) {
@@ -243,8 +249,8 @@ export default class PointsModel {
     this.#adaptedCities = cities;
   }
 
-  #adaptPointToServer(point) {
-    return {
+  #adaptPointToServer(point, newPoint = false) {
+    const pointData = {
       'id': point.id,
       'base_price': point.price,
       'date_from': point.startDateISO,
@@ -260,6 +266,12 @@ export default class PointsModel {
         .filter((option) => option),
       'type': point.type.name,
     };
+
+    if (newPoint) {
+      delete pointData.id;
+    }
+
+    return pointData;
   }
 
   #getMainInfoDates() {

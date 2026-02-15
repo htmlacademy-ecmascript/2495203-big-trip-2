@@ -9,7 +9,7 @@ import {
 import {nanoid} from 'nanoid';
 import he from 'he';
 import {initFlatpickr} from '../utils.js';
-import {SYMBOL} from '../constants';
+import {BUTTON_TEXT, SYMBOL} from '../constants';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -154,7 +154,11 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                   <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${state.price}">
                 </div>
 
-                <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                <button class="event__save-btn  btn  btn--blue"
+                    type="submit"
+                    ${state.isDisabled ? 'disabled' : ''}>
+                    ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+                </button>
                 <button class="event__reset-btn" type="reset">Cancel</button>
               </header>
               ${getDetailsTemplate(state)}
@@ -187,7 +191,12 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
     this.#handleFormSubmit = onFormSubmit;
     this.#addButtonView = addButtonView;
 
-    this._setState(this.#parseDataToState(blankPoint));
+    this._setState({
+      ...this.#parseDataToState(blankPoint),
+      isSaving: false,
+      isDisabled: false,
+    });
+
     this.#setHandlers();
   }
 
@@ -322,7 +331,6 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToData());
-    remove(this);
   };
 
   #handleCancelButtonClick = () => {
