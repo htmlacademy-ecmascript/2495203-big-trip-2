@@ -20,12 +20,14 @@ export default class PointPresenter {
   #handleDeleteClick;
   #defaultMode = MODE.VIEW;
   #mode = this.#defaultMode;
+  #interfaceBlocker;
 
-  constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick}) {
+  constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick, interfaceBlocker}) {
     this.#listElement = listElement;
     this.#handleDataChange = handleDataChange;
     this.#handleEditClick = handlePointEditClick;
     this.#handleDeleteClick = handleDeleteClick;
+    this.#interfaceBlocker = interfaceBlocker;
   }
 
   init(pointData, pointTypes, cities) {
@@ -87,7 +89,8 @@ export default class PointPresenter {
     }
   }
 
-  setPointUpdateAborting = () => {
+  setPointAborting = () => {
+    this.#interfaceBlocker.unblock();
     switch (this.#mode) {
       case MODE.VIEW:
         this.#pointComponent.shake();
@@ -103,6 +106,16 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
     document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   }
+
+  setPointDeleting = () => {
+    this.#interfaceBlocker.block();
+    if (this.#mode === MODE.EDIT) {
+      this.#editFormComponent.updateElement({
+        isDeleting: true,
+        isDisabled: true
+      });
+    }
+  };
 
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
@@ -151,6 +164,7 @@ export default class PointPresenter {
       isDisabled: false,
     });
   };
+
 
 }
 

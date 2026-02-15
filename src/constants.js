@@ -1,3 +1,5 @@
+import {nanoid} from 'nanoid';
+
 export const MODE = {
   VIEW: 'VIEW',
   EDIT: 'EDIT'
@@ -54,7 +56,7 @@ export const END_POINT = {
   POINT_TYPES: 'offers'
 };
 export const SERVER_PATH = 'https://22.objects.htmlacademy.pro/big-trip';
-export const AUTHORIZATION = 'Basic brbryoyo';
+export const AUTHORIZATION = `Basic ${nanoid()}`;
 export const MINUTES_IN_HOUR = 60;
 export const HOURS_IN_DAY = 24;
 export const KEY_ESCAPE = 'Escape';

@@ -12,6 +12,7 @@ import {
 } from '../utils.js';
 import {SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 export default class TripPointsListPresenter {
   #listElement;
@@ -25,6 +26,7 @@ export default class TripPointsListPresenter {
   #currentSortCriteria = SORT_CRITERIA.START_DAY;
   #noPointsMessageView;
   #resetSortForm;
+  #interfaceBlocker;
 
   constructor({listElement, pointsModel, tripContainer, resetSortForm}) {
     this.#listElement = listElement;
@@ -33,6 +35,10 @@ export default class TripPointsListPresenter {
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
     this.#resetSortForm = resetSortForm;
+    this.#interfaceBlocker = new UiBlocker({
+      lowerLimit: 0,
+      upperLimit: 0
+    });
 
     this.#pointsModel.setPointEditObserver(this.#handleModelPointChange);
     this.#pointsModel.setPointRemoveObserver(this.#handleModelPointRemove);
@@ -119,6 +125,7 @@ export default class TripPointsListPresenter {
       handleDataChange: this.#handlePointChange,
       handlePointEditClick: this.#resetAllForms,
       handleDeleteClick: this.#handleDeleteClick,
+      interfaceBlocker: this.#interfaceBlocker
     });
 
     pointPresenter.init(pointData, this.#pointTypes, this.#cities);
@@ -143,9 +150,11 @@ export default class TripPointsListPresenter {
 
   #handlePointChange = async (changedPoint) => {
     try {
+      this.#interfaceBlocker.block();
       await this.#pointsModel.updatePoint(changedPoint);
+      this.#interfaceBlocker.unblock();
     } catch (error) {
-      this.#pointPresenters.get(changedPoint.id).setPointUpdateAborting();
+      this.#pointPresenters.get(changedPoint.id).setPointAborting();
     }
   };
 
@@ -154,8 +163,14 @@ export default class TripPointsListPresenter {
     this.#enableButton();
   };
 
-  #handleDeleteClick = (pointId) => {
-    this.#pointsModel.removePoint(pointId);
+  #handleDeleteClick = async (pointId) => {
+    try {
+      this.#pointPresenters.get(pointId).setPointDeleting();
+      await this.#pointsModel.removePoint(pointId);
+      this.#interfaceBlocker.unblock();
+    } catch (error) {
+      this.#pointPresenters.get(pointId).setPointAborting();
+    }
   };
 
   #handleModelPointChange = (changedPoint) => {

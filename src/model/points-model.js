@@ -135,11 +135,17 @@ export default class PointsModel {
     this.#pointAddObserver();
   }
 
-  removePoint(pointId) {
-    const pointToDelete = this.#adaptedPointsData.find((point) => point.id === pointId);
+  async removePoint(pointId) {
+    try {
+      await this.#tripApiService.deletePoint(pointId);
 
-    this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
-    this.#pointRemoveObserver();
+      const pointToDelete = this.#adaptedPointsData.find((point) => point.id === pointId);
+
+      this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
+      this.#pointRemoveObserver();
+    } catch (error) {
+      throw new Error(`Can't delete point ${pointId}`);
+    }
   }
 
   changeFilter(filterValue) {

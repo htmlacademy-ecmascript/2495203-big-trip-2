@@ -141,7 +141,10 @@ function getEditFormTemplate(state, types, cities) {
                     ${state.isDisabled ? 'disabled' : ''}>
                     ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
             </button>
-            <button class="event__reset-btn" type="reset">Delete</button>
+            <button class="event__reset-btn"
+              type="reset">
+              ${state.isDeleting ? BUTTON_TEXT.DELETING : BUTTON_TEXT.DELETE}
+            </button>
             <button class="event__rollup-btn" type="button">
               <span class="visually-hidden">Open event</span>
             </button>
