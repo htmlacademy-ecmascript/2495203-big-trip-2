@@ -325,7 +325,12 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   }
 
   #parseStateToData() {
-    return {...this._state};
+    const data = {...this._state};
+
+    delete data.isSaving;
+    delete data.isDisabled;
+
+    return data;
   }
 
   #formSubmitHandler = (evt) => {
