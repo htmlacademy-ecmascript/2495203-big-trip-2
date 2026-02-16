@@ -9,7 +9,7 @@ import {
 import {nanoid} from 'nanoid';
 import he from 'he';
 import {initFlatpickr} from '../utils.js';
-import {BUTTON_TEXT, SYMBOL} from '../constants';
+import {ACTION, SYMBOL} from '../constants';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -157,7 +157,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 <button class="event__save-btn  btn  btn--blue"
                     type="submit"
                     ${state.isDisabled ? 'disabled' : ''}>
-                    ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+                    ${state.isSaving ? ACTION.SAVING : ACTION.SAVE}
                 </button>
                 <button class="event__reset-btn" type="reset">Cancel</button>
               </header>

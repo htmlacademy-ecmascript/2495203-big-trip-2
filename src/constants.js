@@ -21,7 +21,7 @@ export const NO_POINTS_MESSAGE = {
   PRESENT: 'There are no present events now',
   PAST: 'There are no past events now',
 };
-export const BUTTON_TEXT = {
+export const ACTION = {
   SAVE: 'Save',
   SAVING: 'Saving...',
   DELETE: 'Delete',
