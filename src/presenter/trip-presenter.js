@@ -60,6 +60,7 @@ export default class TripPresenter {
   };
 
   #handleModelPointAdd = () => {
+    this.#pointsListPresenter.unblockInterface();
     this.#pointsListPresenter.clearPointsList();
     this.init({addButtonView: this.#addButtonComponent});
   };

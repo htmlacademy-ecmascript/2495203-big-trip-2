@@ -33,4 +33,22 @@ export default class TripApiService extends ApiService {
 
     return await ApiService.parseResponse(response);
   }
+
+  async deletePoint(pointId) {
+    return await this._load({
+      url: `${END_POINT.POINTS}/${pointId}`,
+      method: METHOD.DELETE,
+    });
+  }
+
+  async addPoint(pointData) {
+    const response = await this._load({
+      url: `${END_POINT.POINTS}`,
+      method: METHOD.POST,
+      body: JSON.stringify(pointData),
+      headers: new Headers({'Content-Type': 'application/json'})
+    });
+
+    return await ApiService.parseResponse(response);
+  }
 }

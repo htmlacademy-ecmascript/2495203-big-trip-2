@@ -20,12 +20,14 @@ export default class PointPresenter {
   #handleDeleteClick;
   #defaultMode = MODE.VIEW;
   #mode = this.#defaultMode;
+  #interfaceBlocker;
 
-  constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick}) {
+  constructor({listElement, handleDataChange, handlePointEditClick, handleDeleteClick, interfaceBlocker}) {
     this.#listElement = listElement;
     this.#handleDataChange = handleDataChange;
     this.#handleEditClick = handlePointEditClick;
     this.#handleDeleteClick = handleDeleteClick;
+    this.#interfaceBlocker = interfaceBlocker;
   }
 
   init(pointData, pointTypes, cities) {
@@ -87,6 +89,34 @@ export default class PointPresenter {
     }
   }
 
+  setPointAborting = () => {
+    this.#interfaceBlocker.unblock();
+    switch (this.#mode) {
+      case MODE.VIEW:
+        this.#pointComponent.shake();
+        break;
+      case MODE.EDIT:
+        this.#resetEditFormInteractiveInterface();
+        this.#editFormComponent.shake();
+        break;
+    }
+  };
+
+  handleSuccessfullUpdate() {
+    this.#replaceFormToPoint();
+    document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
+  }
+
+  setPointDeleting = () => {
+    this.#interfaceBlocker.block();
+    if (this.#mode === MODE.EDIT) {
+      this.#editFormComponent.updateElement({
+        isDeleting: true,
+        isDisabled: true
+      });
+    }
+  };
+
   #replacePointToForm() {
     replace(this.#editFormComponent, this.#pointComponent);
     this.#mode = MODE.EDIT;
@@ -116,9 +146,25 @@ export default class PointPresenter {
   #handleEditFormSubmit = () => {
     const changedData = {...this.#editFormComponent.parseStateToPointData()};
 
+    this.#setEditFormSaving();
     this.#handleDataChange(changedData);
-    this.#replaceFormToPoint();
-    document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   };
+
+  #setEditFormSaving = () => {
+    this.#editFormComponent.updateElement({
+      isSaving: true,
+      isDisabled: true,
+    });
+  };
+
+  #resetEditFormInteractiveInterface = () => {
+    this.#editFormComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
+    });
+  };
+
+
 }
 

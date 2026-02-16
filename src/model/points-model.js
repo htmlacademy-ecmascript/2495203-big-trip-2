@@ -2,7 +2,7 @@ import {
   getTripPointFormattedDate,
   getHTMLDatetime,
   getTime,
-  formatDateDifference,
+  formatDuration,
   capitalizeFirstLetter,
   formatFormDate,
   getMainInfoFormattedDate,
@@ -92,12 +92,11 @@ export default class PointsModel {
 
   async init() {
     try {
-      const incomingData = Promise.all([
+      const [points, pointTypes, cities] = await Promise.all([
         this.#tripApiService.points,
         this.#tripApiService.pointTypes,
         this.#tripApiService.cities
       ]);
-      const [points, pointTypes, cities] = await incomingData;
 
       this.#tripPoints = [...points];
       this.#pointTypes = [...pointTypes];
@@ -115,9 +114,8 @@ export default class PointsModel {
   }
 
   async updatePoint(changedData) {
-    const adaptedPoint = this.#adaptPointToServer(changedData);
-
     try {
+      const adaptedPoint = this.#adaptPointToServer(changedData);
       const response = await this.#tripApiService.updatePoint(adaptedPoint);
 
       this.#adaptPointToClient(response);
@@ -128,20 +126,32 @@ export default class PointsModel {
     }
   }
 
-  addPoint(pointData) {
-    this.#adaptedPointsData = [
-      ...this.#adaptedPointsData,
-      pointData
-    ];
+  async addPoint(pointData) {
+    try {
+      const response = await this.#tripApiService.addPoint(this.#adaptPointToServer(pointData, true));
 
-    this.#pointAddObserver();
+      this.#adaptPointToClient(response);
+      this.#adaptedPointsData = [
+        ...this.#adaptedPointsData,
+        response
+      ];
+      this.#pointAddObserver();
+    } catch (error) {
+      throw new Error('Can\'t add new point');
+    }
   }
 
-  removePoint(pointId) {
-    const pointToDelete = this.#adaptedPointsData.find((point) => point.id === pointId);
+  async removePoint(pointId) {
+    try {
+      await this.#tripApiService.deletePoint(pointId);
 
-    this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
-    this.#pointRemoveObserver();
+      const pointToDelete = this.#adaptedPointsData.find((point) => point.id === pointId);
+
+      this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
+      this.#pointRemoveObserver();
+    } catch (error) {
+      throw new Error(`Can't delete point ${pointId}`);
+    }
   }
 
   changeFilter(filterValue) {
@@ -172,7 +182,7 @@ export default class PointsModel {
     pointData.endDateISO = pointData.endDate.toISOString();
     pointData.htmlStartDate = getHTMLDatetime(pointData.startDate);
     pointData.htmlEndDate = getHTMLDatetime(pointData.endDate);
-    pointData.duration = formatDateDifference(pointData.startDate, pointData.endDate);
+    pointData.duration = formatDuration(pointData.startDate, pointData.endDate);
     pointData.startTime = getTime(pointData.startDate);
     pointData.endTime = getTime(pointData.endDate);
     pointData.formStartDate = formatFormDate(pointData.startDate);
@@ -239,8 +249,8 @@ export default class PointsModel {
     this.#adaptedCities = cities;
   }
 
-  #adaptPointToServer(point) {
-    return {
+  #adaptPointToServer(point, newPoint = false) {
+    const pointData = {
       'id': point.id,
       'base_price': point.price,
       'date_from': point.startDateISO,
@@ -256,6 +266,12 @@ export default class PointsModel {
         .filter((option) => option),
       'type': point.type.name,
     };
+
+    if (newPoint) {
+      delete pointData.id;
+    }
+
+    return pointData;
   }
 
   #getMainInfoDates() {
