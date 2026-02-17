@@ -63,3 +63,4 @@ export const KEY_ESCAPE = 'Escape';
 export const EVT_KEYDOWN = 'keydown';
 export const MAIN_INFO_MAX_CITIES = 3;
 export const UNSET_PRICE_VALUE = 0;
+export const INITIAL_TRIP_COST = 0;
