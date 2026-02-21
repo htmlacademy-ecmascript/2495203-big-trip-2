@@ -266,6 +266,10 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     return data;
   }
 
+  resetForm() {
+    this.#form.reset();
+  }
+
   #setHandlers = () => {
     this.#form = this.element.querySelector('form');
     this.#rollupButton = this.element.querySelector('.event__rollup-btn');

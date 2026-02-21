@@ -7,7 +7,7 @@ import {
   formatFormDate,
   getMainInfoFormattedDate,
   sortByDateAsc,
-  filterPoints,
+  filterPoints, getFuturePoints, getPresentPoints, getPastPoints,
 } from '../utils.js';
 import {
   FILTER, INITIAL_TRIP_COST,
@@ -29,8 +29,15 @@ export default class PointsModel {
   #filterChangeListObserver;
   #filterChangeSortObserver;
   #mainInfoChangeObserver;
+  #pointsUpdateFilterObserver;
   #defaultFilter = FILTER.EVERYTHING;
   #currentFilter = this.#defaultFilter;
+  #filterStatus = {
+    [FILTER.EVERYTHING]: false,
+    [FILTER.FUTURE]: false,
+    [FILTER.PRESENT]: false,
+    [FILTER.PAST]: false,
+  };
 
   constructor({tripApiService}) {
     this.#tripApiService = tripApiService;
@@ -72,6 +79,10 @@ export default class PointsModel {
     return this.#currentFilter;
   }
 
+  get filterStatus() {
+    return this.#filterStatus;
+  }
+
   setPointEditObserver(observer) {
     this.#pointEditObserver = observer;
   }
@@ -96,6 +107,10 @@ export default class PointsModel {
     this.#mainInfoChangeObserver = observer;
   }
 
+  setPointsUpdateFilterObserver(observer) {
+    this.#pointsUpdateFilterObserver = observer;
+  }
+
   async init() {
     try {
       const [points, pointTypes, cities] = await Promise.all([
@@ -112,6 +127,7 @@ export default class PointsModel {
       this.#adaptCitiesDataToClient();
       this.#adaptPointsDataToClient();
       this.#adaptBlankPointDataToClient();
+      this.#updateFilterStatus();
     } catch (err) {
       this.#tripPoints = [];
       this.#pointTypes = [];
@@ -128,6 +144,7 @@ export default class PointsModel {
       this.#adaptedPointsData = [...this.#adaptedPointsData.map((item) => item.id === response.id ? response : item)];
       this.#pointEditObserver(changedData);
       this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (err) {
       throw new Error('Can\'t update point');
     }
@@ -144,6 +161,7 @@ export default class PointsModel {
       ];
       this.#pointAddObserver();
       this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (error) {
       throw new Error('Can\'t add new point');
     }
@@ -158,6 +176,7 @@ export default class PointsModel {
       this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
       this.#pointRemoveObserver();
       this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (error) {
       throw new Error(`Can't delete point ${pointId}`);
     }
@@ -171,6 +190,17 @@ export default class PointsModel {
     this.#currentFilter = filterValue;
     this.#filterChangeListObserver();
     this.#filterChangeSortObserver();
+  }
+
+  #updateFilterStatus() {
+    this.#filterStatus = {
+      [FILTER.EVERYTHING]: this.#adaptedPointsData.length > 0,
+      [FILTER.FUTURE]: getFuturePoints(this.#adaptedPointsData).length > 0,
+      [FILTER.PRESENT]: getPresentPoints(this.#adaptedPointsData).length > 0,
+      [FILTER.PAST]: getPastPoints(this.#adaptedPointsData).length > 0
+    };
+
+    this.#pointsUpdateFilterObserver(this.#filterStatus);
   }
 
   #adaptPointToClient(pointData) {
