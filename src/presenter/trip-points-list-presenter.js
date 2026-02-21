@@ -10,7 +10,7 @@ import {
   sortByDurationAsc,
   sortByPriceAsc
 } from '../utils.js';
-import {SORT_CRITERIA} from '../constants.js';
+import {EVT_KEYDOWN, KEY_ESCAPE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
@@ -72,12 +72,13 @@ export default class TripPointsListPresenter {
       pointTypes: this.#pointsModel.pointTypes,
       blankPoint: this.#pointsModel.blankPoint,
       onFormSubmit: this.#handleAddFormSubmit,
-      addButtonView: this.#addButtonComponent
+      onCancelButtonClick: this.#handleCancelButtonClick
     });
     this.#resetAllForms();
     this.handleSortChange(SORT_CRITERIA.START_DAY);
     this.#resetSortForm();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
+    document.addEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   }
 
   handleSortChange = (sortCriteria) => {
@@ -109,6 +110,14 @@ export default class TripPointsListPresenter {
     if (this.#noPointsMessageView) {
       remove(this.#noPointsMessageView);
       this.#noPointsMessageView = null;
+    }
+  }
+
+  #closeAddingForm() {
+    if (this.#addingFormComponent) {
+      remove(this.#addingFormComponent);
+      this.#enableButton();
+      document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
     }
   }
 
@@ -223,5 +232,17 @@ export default class TripPointsListPresenter {
   #handleModelFilterChange = () => {
     this.#currentSortCriteria = SORT_CRITERIA.START_DAY;
     this.#rerenderPoints();
+  };
+
+  #handleCancelButtonClick = () => {
+    this.#closeAddingForm();
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === KEY_ESCAPE) {
+      evt.preventDefault();
+      this.#closeAddingForm();
+      document.removeEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
+    }
   };
 }

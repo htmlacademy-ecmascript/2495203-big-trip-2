@@ -1,4 +1,3 @@
-import {remove} from '../framework/render.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {
   destinationInputHandler,
@@ -180,16 +179,16 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   #destinationInput;
   #priceInput;
   #offersContainer;
-  #addButtonView;
   #startPicker;
   #endPicker;
+  #handleCancelButtonClick;
 
-  constructor({cities, pointTypes, blankPoint, onFormSubmit, addButtonView}) {
+  constructor({cities, pointTypes, blankPoint, onFormSubmit, onCancelButtonClick}) {
     super();
     this.#cities = cities;
     this.#pointTypes = pointTypes;
     this.#handleFormSubmit = onFormSubmit;
-    this.#addButtonView = addButtonView;
+    this.#handleCancelButtonClick = onCancelButtonClick;
 
     this._setState({
       ...this.#parseDataToState(blankPoint),
@@ -336,10 +335,5 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToData());
-  };
-
-  #handleCancelButtonClick = () => {
-    remove(this);
-    this.#addButtonView.element.disabled = false;
   };
 }
