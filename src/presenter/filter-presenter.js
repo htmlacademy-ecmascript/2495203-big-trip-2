@@ -10,8 +10,10 @@ export default class FilterPresenter {
     this.#pointsModel = pointsModel;
     this.#mainInfoContainer = mainInfoContainer;
     this.#filterView = new FilterView({
-      filterChangeHandler: this.#handleFilterChange
+      filterChangeHandler: this.#handleFilterChange,
+      filterStatus: this.#pointsModel.filterStatus
     });
+    this.#pointsModel.setPointsUpdateFilterObserver(this.#handleModelFilterStatusChange);
   }
 
   init() {
@@ -22,5 +24,9 @@ export default class FilterPresenter {
 
   #handleFilterChange = (buttonValue) => {
     this.#pointsModel.changeFilter(buttonValue);
+  };
+
+  #handleModelFilterStatusChange = (filterStatus) => {
+    this.#filterView.updateElement(filterStatus);
   };
 }

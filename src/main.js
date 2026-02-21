@@ -1,11 +1,11 @@
 import {render} from './framework/render.js';
-import TripMainInfoView from './view/trip-main-info.js';
 import TripPointAddingButtonView from './view/trip-point-adding-button-view.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripApiService from './trip-api-service';
 import {AUTHORIZATION, SERVER_PATH} from './constants';
+import MainInfoPresenter from './presenter/main-info-presenter.js';
 
 const mainInfoContainer = document.querySelector('.trip-main');
 const eventsContainer = document.querySelector('.trip-events');
@@ -32,11 +32,13 @@ pointsModel.init()
         tripPresenter.handleAddingButtonClick();
       }
     });
+    const mainInfoPresenter = new MainInfoPresenter({
+      model: pointsModel,
+      mainInfoContainer: mainInfoContainer
+    });
 
     if (pointsModel.pointsCount) {
-      render(new TripMainInfoView({
-        mainInfo: pointsModel.mainInfo
-      }), mainInfoContainer);
+      mainInfoPresenter.init();
     }
     filterPresenter.init();
     render(addButtonView, mainInfoContainer);

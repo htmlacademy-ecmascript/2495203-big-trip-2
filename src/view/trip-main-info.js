@@ -17,10 +17,7 @@ function createDatesTemplate(dates) {
   );
 }
 
-function createTripMainInfoTemplate(mainInfo) {
-  const dates = mainInfo.dates;
-  const cities = mainInfo.cities;
-
+function createTripMainInfoTemplate({dates, cities, cost}) {
   return (
     `<section class="trip-main__trip-info trip-info">
             <div class="trip-info__main">
@@ -30,7 +27,7 @@ function createTripMainInfoTemplate(mainInfo) {
             </div>
 
             <p class="trip-info__cost">
-              Total: ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="trip-info__cost-value">1230</span>
+              Total: ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="trip-info__cost-value">${cost}</span>
             </p>
           </section>`
   );
