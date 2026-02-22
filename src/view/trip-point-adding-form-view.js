@@ -1,4 +1,3 @@
-import {remove} from '../framework/render.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {
   destinationInputHandler,
@@ -9,7 +8,7 @@ import {
 import {nanoid} from 'nanoid';
 import he from 'he';
 import {initFlatpickr} from '../utils.js';
-import {BUTTON_TEXT, SYMBOL} from '../constants';
+import {ACTION, SYMBOL} from '../constants';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -157,7 +156,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 <button class="event__save-btn  btn  btn--blue"
                     type="submit"
                     ${state.isDisabled ? 'disabled' : ''}>
-                    ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+                    ${state.isSaving ? ACTION.SAVING : ACTION.SAVE}
                 </button>
                 <button class="event__reset-btn" type="reset">Cancel</button>
               </header>
@@ -180,16 +179,16 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   #destinationInput;
   #priceInput;
   #offersContainer;
-  #addButtonView;
   #startPicker;
   #endPicker;
+  #handleCancelButtonClick;
 
-  constructor({cities, pointTypes, blankPoint, onFormSubmit, addButtonView}) {
+  constructor({cities, pointTypes, blankPoint, onFormSubmit, onCancelButtonClick}) {
     super();
     this.#cities = cities;
     this.#pointTypes = pointTypes;
     this.#handleFormSubmit = onFormSubmit;
-    this.#addButtonView = addButtonView;
+    this.#handleCancelButtonClick = onCancelButtonClick;
 
     this._setState({
       ...this.#parseDataToState(blankPoint),
@@ -336,10 +335,5 @@ export default class TripPointAddingFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(this.#parseStateToData());
-  };
-
-  #handleCancelButtonClick = () => {
-    remove(this);
-    this.#addButtonView.element.disabled = false;
   };
 }

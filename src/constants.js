@@ -21,7 +21,7 @@ export const NO_POINTS_MESSAGE = {
   PRESENT: 'There are no present events now',
   PAST: 'There are no past events now',
 };
-export const BUTTON_TEXT = {
+export const ACTION = {
   SAVE: 'Save',
   SAVING: 'Saving...',
   DELETE: 'Delete',
@@ -63,3 +63,4 @@ export const KEY_ESCAPE = 'Escape';
 export const EVT_KEYDOWN = 'keydown';
 export const MAIN_INFO_MAX_CITIES = 3;
 export const UNSET_PRICE_VALUE = 0;
+export const INITIAL_TRIP_COST = 0;

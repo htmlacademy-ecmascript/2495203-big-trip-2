@@ -155,19 +155,31 @@ export function initFlatpickr(component) {
   });
 }
 
+export function getFuturePoints(points) {
+  return [...points.filter((point) => getDateWithoutTime(new Date) < getDateWithoutTime(point.startDate))];
+}
+
+export function getPresentPoints(points) {
+  return [...points.filter((point) => {
+    const currentDate = getDateWithoutTime(new Date);
+    const pointStartDate = getDateWithoutTime(point.startDate);
+    const pointEndDate = getDateWithoutTime(point.endDate);
+
+    return pointStartDate <= currentDate && pointEndDate >= currentDate;
+  })];
+}
+
+export function getPastPoints(points) {
+  return [...points.filter((point) => getDateWithoutTime(new Date) > getDateWithoutTime(point.startDate))];
+}
+
 export function filterPoints(points, filterValue) {
   switch (filterValue) {
     case FILTER.FUTURE:
-      return [...points.filter((point) => getDateWithoutTime(new Date) < getDateWithoutTime(point.startDate))];
+      return getFuturePoints(points);
     case FILTER.PRESENT:
-      return [...points.filter((point) => {
-        const currentDate = getDateWithoutTime(new Date);
-        const pointStartDate = getDateWithoutTime(point.startDate);
-        const pointEndDate = getDateWithoutTime(point.endDate);
-
-        return pointStartDate <= currentDate && pointEndDate >= currentDate;
-      })];
+      return getPresentPoints(points);
     case FILTER.PAST:
-      return [...points.filter((point) => getDateWithoutTime(new Date) > getDateWithoutTime(point.startDate))];
+      return getPastPoints(points);
   }
 }

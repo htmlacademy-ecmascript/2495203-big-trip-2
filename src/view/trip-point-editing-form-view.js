@@ -9,7 +9,7 @@ import {
   initFlatpickr
 } from '../utils.js';
 import he from 'he';
-import {BUTTON_TEXT, SYMBOL} from '../constants.js';
+import {ACTION, SYMBOL} from '../constants.js';
 
 function getPointDetails(state) {
   if (!(state.type.options || state.destination.description)) {
@@ -139,11 +139,11 @@ function getEditFormTemplate(state, types, cities) {
             <button class="event__save-btn  btn  btn--blue"
                     type="submit"
                     ${state.isDisabled ? 'disabled' : ''}>
-                    ${state.isSaving ? BUTTON_TEXT.SAVING : BUTTON_TEXT.SAVE}
+                    ${state.isSaving ? ACTION.SAVING : ACTION.SAVE}
             </button>
             <button class="event__reset-btn"
               type="reset">
-              ${state.isDeleting ? BUTTON_TEXT.DELETING : BUTTON_TEXT.DELETE}
+              ${state.isDeleting ? ACTION.DELETING : ACTION.DELETE}
             </button>
             <button class="event__rollup-btn" type="button">
               <span class="visually-hidden">Open event</span>
@@ -264,6 +264,10 @@ export default class TripPointEditingFormView extends AbstractStatefulView {
     delete data.isDisabled;
 
     return data;
+  }
+
+  resetForm() {
+    this.#form.reset();
   }
 
   #setHandlers = () => {

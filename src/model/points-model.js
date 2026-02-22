@@ -7,10 +7,10 @@ import {
   formatFormDate,
   getMainInfoFormattedDate,
   sortByDateAsc,
-  filterPoints,
+  filterPoints, getFuturePoints, getPresentPoints, getPastPoints,
 } from '../utils.js';
 import {
-  FILTER,
+  FILTER, INITIAL_TRIP_COST,
   MAIN_INFO_MAX_CITIES, SYMBOL
 } from '../constants.js';
 
@@ -28,8 +28,16 @@ export default class PointsModel {
   #pointRemoveObserver;
   #filterChangeListObserver;
   #filterChangeSortObserver;
+  #mainInfoChangeObserver;
+  #pointsUpdateFilterObserver;
   #defaultFilter = FILTER.EVERYTHING;
   #currentFilter = this.#defaultFilter;
+  #filterStatus = {
+    [FILTER.EVERYTHING]: false,
+    [FILTER.FUTURE]: false,
+    [FILTER.PRESENT]: false,
+    [FILTER.PAST]: false,
+  };
 
   constructor({tripApiService}) {
     this.#tripApiService = tripApiService;
@@ -62,12 +70,17 @@ export default class PointsModel {
   get mainInfo() {
     return {
       'dates': this.#getMainInfoDates(),
-      'cities': this.#getMainInfoCities()
+      'cities': this.#getMainInfoCities(),
+      'cost': this.#getTripCost()
     };
   }
 
   get currentFilter() {
     return this.#currentFilter;
+  }
+
+  get filterStatus() {
+    return this.#filterStatus;
   }
 
   setPointEditObserver(observer) {
@@ -90,6 +103,14 @@ export default class PointsModel {
     this.#filterChangeSortObserver = observer;
   }
 
+  setMainInfoChangeObserver(observer) {
+    this.#mainInfoChangeObserver = observer;
+  }
+
+  setPointsUpdateFilterObserver(observer) {
+    this.#pointsUpdateFilterObserver = observer;
+  }
+
   async init() {
     try {
       const [points, pointTypes, cities] = await Promise.all([
@@ -106,6 +127,7 @@ export default class PointsModel {
       this.#adaptCitiesDataToClient();
       this.#adaptPointsDataToClient();
       this.#adaptBlankPointDataToClient();
+      this.#updateFilterStatus();
     } catch (err) {
       this.#tripPoints = [];
       this.#pointTypes = [];
@@ -121,6 +143,8 @@ export default class PointsModel {
       this.#adaptPointToClient(response);
       this.#adaptedPointsData = [...this.#adaptedPointsData.map((item) => item.id === response.id ? response : item)];
       this.#pointEditObserver(changedData);
+      this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (err) {
       throw new Error('Can\'t update point');
     }
@@ -136,6 +160,8 @@ export default class PointsModel {
         response
       ];
       this.#pointAddObserver();
+      this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (error) {
       throw new Error('Can\'t add new point');
     }
@@ -149,6 +175,8 @@ export default class PointsModel {
 
       this.#adaptedPointsData.splice(this.#adaptedPointsData.indexOf(pointToDelete), 1);
       this.#pointRemoveObserver();
+      this.#mainInfoChangeObserver();
+      this.#updateFilterStatus();
     } catch (error) {
       throw new Error(`Can't delete point ${pointId}`);
     }
@@ -162,6 +190,17 @@ export default class PointsModel {
     this.#currentFilter = filterValue;
     this.#filterChangeListObserver();
     this.#filterChangeSortObserver();
+  }
+
+  #updateFilterStatus() {
+    this.#filterStatus = {
+      [FILTER.EVERYTHING]: this.#adaptedPointsData.length > 0,
+      [FILTER.FUTURE]: getFuturePoints(this.#adaptedPointsData).length > 0,
+      [FILTER.PRESENT]: getPresentPoints(this.#adaptedPointsData).length > 0,
+      [FILTER.PAST]: getPastPoints(this.#adaptedPointsData).length > 0
+    };
+
+    this.#pointsUpdateFilterObserver(this.#filterStatus);
   }
 
   #adaptPointToClient(pointData) {
@@ -316,5 +355,25 @@ export default class PointsModel {
 
     result = `${cityNames[0]} ${SYMBOL.MDASH} ${SYMBOL.THREE_DOTS} ${SYMBOL.MDASH} ${cityNames[cityNames.length - 1]}`;
     return result;
+  }
+
+  #getTripCost() {
+    return this.#adaptedPointsData.reduce((tripCost, point) => {
+      const initialPointPrice = Number(point.price);
+      if (!isNaN(initialPointPrice)) {
+        tripCost += initialPointPrice;
+      }
+
+      point.type.options.forEach((option) => {
+        const optionPrice = Number(option.price);
+        const isChecked = option.checked;
+
+        if (!isNaN(optionPrice) && isChecked) {
+          tripCost += optionPrice;
+        }
+      });
+
+      return tripCost;
+    }, INITIAL_TRIP_COST);
   }
 }
