@@ -7,8 +7,8 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   sortByDateAsc,
-  sortByDurationAsc,
-  sortByPriceAsc
+  sortByDurationDesc,
+  sortByPriceDesc
 } from '../utils.js';
 import {EVT_KEYDOWN, KEY_ESCAPE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
@@ -48,10 +48,10 @@ export default class TripPointsListPresenter {
   get points() {
     switch (this.#currentSortCriteria) {
       case SORT_CRITERIA.DURATION: {
-        return [...this.#pointsModel.tripPoints.sort(sortByDurationAsc)];
+        return [...this.#pointsModel.tripPoints.sort(sortByDurationDesc)];
       }
       case SORT_CRITERIA.PRICE: {
-        return [...this.#pointsModel.tripPoints.sort(sortByPriceAsc)];
+        return [...this.#pointsModel.tripPoints.sort(sortByPriceDesc)];
       }
       case SORT_CRITERIA.START_DAY: {
         return [...this.#pointsModel.tripPoints.sort(sortByDateAsc)];

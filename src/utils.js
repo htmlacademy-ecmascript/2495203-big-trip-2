@@ -69,15 +69,15 @@ export function sortByDateAsc(a, b) {
   return a.startDate - b.startDate;
 }
 
-export function sortByPriceAsc(a, b) {
-  return a.price - b.price;
+export function sortByPriceDesc(a, b) {
+  return b.price - a.price;
 }
 
-export function sortByDurationAsc(a, b) {
-  const firstDuration = a.endDate - a.startDate;
-  const secondDuration = b.endDate - b.startDate;
+export function sortByDurationDesc(a, b) {
+  const firstDuration = Date.parse(a.endDateISO) - Date.parse(a.startDateISO);
+  const secondDuration = Date.parse(b.endDateISO) - Date.parse(b.startDateISO);
 
-  return firstDuration - secondDuration;
+  return secondDuration - firstDuration;
 }
 
 export function getIconSrcByEventType(typeName) {
