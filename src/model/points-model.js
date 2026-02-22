@@ -364,14 +364,14 @@ export default class PointsModel {
         tripCost += initialPointPrice;
       }
 
-      point.type.options.forEach((option) => {
+      for (const option of point.type.options) {
         const optionPrice = Number(option.price);
         const isChecked = option.checked;
 
         if (!isNaN(optionPrice) && isChecked) {
           tripCost += optionPrice;
         }
-      });
+      }
 
       return tripCost;
     }, INITIAL_TRIP_COST);
