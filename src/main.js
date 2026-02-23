@@ -53,8 +53,7 @@ pointsModel.init()
 
     tripPresenter.init({addButtonView});
   })
-  .catch((error) => {
+  .catch(() => {
     const errorMessage = new MessageView({message: LOADING_MESSAGE.ERROR});
     render(errorMessage, eventsContainer);
-    console.error(error);
   });

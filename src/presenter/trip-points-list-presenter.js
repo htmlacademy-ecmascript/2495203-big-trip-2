@@ -10,7 +10,7 @@ import {
   sortByDurationDesc,
   sortByPriceDesc
 } from '../utils.js';
-import {EVT_KEYDOWN, KEY_ESCAPE, NO_POINTS_MESSAGE, SORT_CRITERIA} from '../constants.js';
+import {EVT_KEYDOWN, FILTER, KEY_ESCAPE, NO_POINTS_MESSAGE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import SortPresenter from './sort-presenter.js';
@@ -80,6 +80,7 @@ export default class TripPointsListPresenter {
       onCancelButtonClick: this.#handleCancelButtonClick
     });
     this.#resetAllForms();
+    this.#pointsModel.changeFilter(FILTER.EVERYTHING);
     this.handleSortChange(SORT_CRITERIA.START_DAY);
     this.#sortPresenter.resetForm();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);

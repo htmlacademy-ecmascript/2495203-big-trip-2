@@ -17,12 +17,16 @@ export default class TripPresenter {
   }
 
   init({addButtonView}) {
-    this.#pointsListComponent = new TripPointsListView();
-    this.#pointsListPresenter = new TripPointsListPresenter({
-      listElement: this.#pointsListComponent.element,
-      pointsModel: this.#pointsModel,
-      tripContainer: this.#tripContainer,
-    });
+    if (!this.#pointsListComponent) {
+      this.#pointsListComponent = new TripPointsListView();
+    }
+    if (!this.#pointsListPresenter) {
+      this.#pointsListPresenter = new TripPointsListPresenter({
+        listElement: this.#pointsListComponent.element,
+        pointsModel: this.#pointsModel,
+        tripContainer: this.#tripContainer,
+      });
+    }
 
     this.#pointsModel.setPointAddObserver(this.#handleModelPointAdd);
     this.#addButtonComponent = addButtonView;
