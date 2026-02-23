@@ -14,6 +14,9 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel;
     this.#mainInfoContainer = mainInfoContainer;
     this.#tripContainer = tripContainer;
+  }
+
+  init({addButtonView}) {
     this.#pointsListComponent = new TripPointsListView();
     this.#pointsListPresenter = new TripPointsListPresenter({
       listElement: this.#pointsListComponent.element,
@@ -22,10 +25,8 @@ export default class TripPresenter {
     });
 
     this.#pointsModel.setPointAddObserver(this.#handleModelPointAdd);
-  }
-
-  init({addButtonView}) {
     this.#addButtonComponent = addButtonView;
+    this.#addButtonComponent.element.disabled = false;
     this.#renderPointsList();
   }
 
@@ -37,7 +38,10 @@ export default class TripPresenter {
 
   #renderPointsList() {
     this.#createListLayout();
-    this.#pointsListPresenter.init({addButtonView: this.#addButtonComponent});
+
+    if (this.#pointsModel.tripPoints) {
+      this.#pointsListPresenter.init({addButtonView: this.#addButtonComponent});
+    }
   }
 
   #createListLayout() {

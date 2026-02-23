@@ -18,25 +18,29 @@ const apiService = new TripApiService(
 
 const pointsModel = new PointsModel({tripApiService: apiService});
 
+const filterPresenter = new FilterPresenter({
+  pointsModel: pointsModel,
+  mainInfoContainer: mainInfoContainer
+});
+const tripPresenter = new TripPresenter({
+  mainInfoContainer: mainInfoContainer,
+  tripContainer: eventsContainer,
+  pointsModel: pointsModel
+});
+filterPresenter.init();
+
+const addButtonView = new TripPointAddingButtonView({
+  onButtonClick: () => {
+    tripPresenter.handleAddingButtonClick();
+  }
+});
+render(addButtonView, mainInfoContainer);
+
 const loadingMessage = new MessageView({message: LOADING_MESSAGE.PROCESS});
 render(loadingMessage, eventsContainer);
 
 pointsModel.init()
   .then(() => {
-    const tripPresenter = new TripPresenter({
-      mainInfoContainer: mainInfoContainer,
-      tripContainer: eventsContainer,
-      pointsModel: pointsModel
-    });
-    const filterPresenter = new FilterPresenter({
-      pointsModel: pointsModel,
-      mainInfoContainer: mainInfoContainer
-    });
-    const addButtonView = new TripPointAddingButtonView({
-      onButtonClick: () => {
-        tripPresenter.handleAddingButtonClick();
-      }
-    });
     const mainInfoPresenter = new MainInfoPresenter({
       model: pointsModel,
       mainInfoContainer: mainInfoContainer
@@ -46,12 +50,11 @@ pointsModel.init()
     if (pointsModel.pointsCount) {
       mainInfoPresenter.init();
     }
-    filterPresenter.init();
-    render(addButtonView, mainInfoContainer);
 
     tripPresenter.init({addButtonView});
   })
-  .catch(() => {
+  .catch((error) => {
     const errorMessage = new MessageView({message: LOADING_MESSAGE.ERROR});
     render(errorMessage, eventsContainer);
+    console.error(error);
   });
