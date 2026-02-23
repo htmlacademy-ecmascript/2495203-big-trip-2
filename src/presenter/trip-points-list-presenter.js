@@ -13,6 +13,7 @@ import {
 import {EVT_KEYDOWN, KEY_ESCAPE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import SortPresenter from './sort-presenter.js';
 
 export default class TripPointsListPresenter {
   #listElement;
@@ -25,20 +26,25 @@ export default class TripPointsListPresenter {
   #pointPresenters = new Map();
   #currentSortCriteria = SORT_CRITERIA.START_DAY;
   #noPointsMessageView;
-  #resetSortForm;
   #interfaceBlocker;
+  #sortPresenter;
 
-  constructor({listElement, pointsModel, tripContainer, resetSortForm}) {
+  constructor({listElement, pointsModel, tripContainer}) {
     this.#listElement = listElement;
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
-    this.#resetSortForm = resetSortForm;
     this.#interfaceBlocker = new UiBlocker({
       lowerLimit: 0,
       upperLimit: 0
     });
+    this.#sortPresenter = new SortPresenter({
+      tripContainer: this.#tripContainer,
+      handleSortChange: this.handleSortChange,
+      pointsModel: this.#pointsModel
+    });
+
 
     this.#pointsModel.setPointEditObserver(this.#handleModelPointChange);
     this.#pointsModel.setPointRemoveObserver(this.#handleModelPointRemove);
@@ -76,7 +82,7 @@ export default class TripPointsListPresenter {
     });
     this.#resetAllForms();
     this.handleSortChange(SORT_CRITERIA.START_DAY);
-    this.#resetSortForm();
+    this.#sortPresenter.resetForm();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
     document.addEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   }
@@ -127,12 +133,15 @@ export default class TripPointsListPresenter {
 
   #renderPoints(pointsData) {
     if (pointsData.length) {
+      this.#sortPresenter.init();
+
       pointsData.forEach((pointData) => {
         this.#renderPoint(pointData);
       });
       return;
     }
 
+    this.#sortPresenter.removeSortForm();
     this.#renderMessage(this.#pointsModel.currentFilter);
   }
 
