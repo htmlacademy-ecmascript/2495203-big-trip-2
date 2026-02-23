@@ -1,21 +1,20 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {NO_POINTS_MESSAGE} from '../constants';
 
-function getMessageTemplate(filter) {
+function getMessageTemplate(message) {
   return (
-    `<p class="trip-events__msg">${NO_POINTS_MESSAGE[filter.toUpperCase()]}</p>`
+    `<p class="trip-events__msg">${message}</p>`
   );
 }
 
 export default class MessageView extends AbstractView {
-  #currentFilter;
+  #message;
 
-  constructor({currentFilter}) {
+  constructor({message}) {
     super();
-    this.#currentFilter = currentFilter;
+    this.#message = message;
   }
 
   get template() {
-    return getMessageTemplate(this.#currentFilter);
+    return getMessageTemplate(this.#message);
   }
 }

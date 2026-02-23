@@ -10,7 +10,7 @@ import {
   sortByDurationDesc,
   sortByPriceDesc
 } from '../utils.js';
-import {EVT_KEYDOWN, KEY_ESCAPE, SORT_CRITERIA} from '../constants.js';
+import {EVT_KEYDOWN, KEY_ESCAPE, NO_POINTS_MESSAGE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import SortPresenter from './sort-presenter.js';
@@ -44,7 +44,6 @@ export default class TripPointsListPresenter {
       handleSortChange: this.handleSortChange,
       pointsModel: this.#pointsModel
     });
-
 
     this.#pointsModel.setPointEditObserver(this.#handleModelPointChange);
     this.#pointsModel.setPointRemoveObserver(this.#handleModelPointRemove);
@@ -170,7 +169,7 @@ export default class TripPointsListPresenter {
   };
 
   #renderMessage(filter) {
-    this.#noPointsMessageView = new MessageView({currentFilter: filter});
+    this.#noPointsMessageView = new MessageView({message: NO_POINTS_MESSAGE[filter.toUpperCase()]});
     render(this.#noPointsMessageView, this.#tripContainer);
   }
 
