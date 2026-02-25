@@ -42,15 +42,15 @@ function getOffersTemplate(offers) {
         ${offers.map(({id, name, alias, price, checked}) => `
           <div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden"
-            id="event-offer-${alias}"
-            type="checkbox"
-            name="event-offer-${alias}"
-            value="${id}"
-            ${checked ? 'checked' : ''}>
-            <label class="event__offer-label" for="event-offer-${alias}">
-              <span class="event__offer-title">${name}</span>
+              id="event-offer-${he.encode(alias)}"
+              type="checkbox"
+              name="event-offer-${he.encode(alias)}"
+              value="${he.encode(String(id))}"
+              ${checked ? 'checked' : ''}>
+            <label class="event__offer-label" for="event-offer-${he.encode(alias)}">
+              <span class="event__offer-title">${he.encode(name)}</span>
               ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
-              <span class="event__offer-price">${price}</span>
+              <span class="event__offer-price">${he.encode(String(price))}</span>
             </label>
           </div>
         `).join('')}
@@ -77,8 +77,8 @@ function getTypesTemplate(types) {
 
           ${types.map(({id, name, capitalizedName}) => `
             <div class="event__type-item">
-              <input id="event-type-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
-              <label class="event__type-label  event__type-label--${name}" for="event-type-${id}">${capitalizedName}</label>
+              <input id="event-type-${he.encode(String(id))}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${he.encode(String(id))}">
+              <label class="event__type-label  event__type-label--${he.encode(name)}" for="event-type-${he.encode(String(id))}">${he.encode(capitalizedName)}</label>
             </div>
           `).join('')}
         </fieldset>
@@ -94,7 +94,7 @@ function getEditFormTemplate(state, types, cities) {
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/${state.type.name}.png" alt="Event type icon">
+                <img class="event__type-icon" width="17" height="17" src="img/icons/${he.encode(state.type.name)}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -118,10 +118,10 @@ function getEditFormTemplate(state, types, cities) {
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time">From</label>
-              <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${state.formStartDate}">
+              <input class="event__input  event__input--time" id="event-start-time" type="text" name="event-start-time" value="${he.encode(state.formStartDate)}">
               ${SYMBOL.MDASH}
               <label class="visually-hidden" for="event-end-time">To</label>
-              <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${state.formEndDate}">
+              <input class="event__input  event__input--time" id="event-end-time" type="text" name="event-end-time" value="${he.encode(state.formEndDate)}">
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -133,7 +133,7 @@ function getEditFormTemplate(state, types, cities) {
               id="event-price-1"
               type="number"
               name="event-price"
-              value="${state.price}">
+              value="${he.encode(String(state.price))}">
             </div>
 
             <button class="event__save-btn  btn  btn--blue"

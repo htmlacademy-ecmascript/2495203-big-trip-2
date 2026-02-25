@@ -3,8 +3,8 @@ import TripPointAddingButtonView from './view/trip-point-adding-button-view.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterPresenter from './presenter/filter-presenter.js';
-import TripApiService from './trip-api-service';
-import {AUTHORIZATION, LOADING_MESSAGE, SERVER_PATH} from './constants';
+import TripApiService from './trip-api-service.js';
+import {AUTHORIZATION, LOADING_MESSAGE, SERVER_PATH} from './constants.js';
 import MainInfoPresenter from './presenter/main-info-presenter.js';
 import MessageView from './view/message-view.js';
 

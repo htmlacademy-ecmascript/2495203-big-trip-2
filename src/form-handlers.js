@@ -23,7 +23,7 @@ export function destinationInputHandler({evt, component}) {
   const allowedCities = component.cities.map(({cityName}) => cityName);
 
   if (!allowedCities.includes(value)) {
-    input.setCustomValidity(`Allowed cities: ${allowedCities.map((city) => city).join(', ')}`);
+    input.setCustomValidity(`Allowed cities: ${allowedCities.join(', ')}`);
     return;
   }
 

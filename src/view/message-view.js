@@ -1,8 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import he from 'he';
 
 function getMessageTemplate(message) {
   return (
-    `<p class="trip-events__msg">${message}</p>`
+    `<p class="trip-events__msg">${he.encode(message)}</p>`
   );
 }
 
