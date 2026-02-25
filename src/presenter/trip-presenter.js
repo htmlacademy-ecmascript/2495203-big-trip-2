@@ -1,13 +1,11 @@
 import {render} from '../framework/render.js';
 import TripPointsListView from '../view/trip-points-list-view.js';
 import TripPointsListPresenter from './trip-points-list-presenter.js';
-import SortPresenter from './sort-presenter.js';
 
 export default class TripPresenter {
   #mainInfoContainer;
   #tripContainer;
   #pointsModel;
-  #sortPresenter;
   #pointsListComponent;
   #pointsListPresenter;
   #addButtonComponent;
@@ -16,24 +14,23 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel;
     this.#mainInfoContainer = mainInfoContainer;
     this.#tripContainer = tripContainer;
-    this.#pointsListComponent = new TripPointsListView();
-    this.#pointsListPresenter = new TripPointsListPresenter({
-      listElement: this.#pointsListComponent.element,
-      pointsModel: this.#pointsModel,
-      tripContainer: this.#tripContainer,
-      resetSortForm: this.#resetSortForm
-    });
-    this.#sortPresenter = new SortPresenter({
-      tripContainer: this.#tripContainer,
-      handleSortChange: this.#pointsListPresenter.handleSortChange,
-      pointsModel: this.#pointsModel
-    });
-
-    this.#pointsModel.setPointAddObserver(this.#handleModelPointAdd);
   }
 
   init({addButtonView}) {
+    if (!this.#pointsListComponent) {
+      this.#pointsListComponent = new TripPointsListView();
+    }
+    if (!this.#pointsListPresenter) {
+      this.#pointsListPresenter = new TripPointsListPresenter({
+        listElement: this.#pointsListComponent.element,
+        pointsModel: this.#pointsModel,
+        tripContainer: this.#tripContainer,
+      });
+    }
+
+    this.#pointsModel.setPointAddObserver(this.#handleModelPointAdd);
     this.#addButtonComponent = addButtonView;
+    this.#addButtonComponent.element.disabled = false;
     this.#renderPointsList();
   }
 
@@ -45,19 +42,15 @@ export default class TripPresenter {
 
   #renderPointsList() {
     this.#createListLayout();
-    this.#pointsListPresenter.init({addButtonView: this.#addButtonComponent});
+
+    if (this.#pointsModel.tripPoints) {
+      this.#pointsListPresenter.init({addButtonView: this.#addButtonComponent});
+    }
   }
 
   #createListLayout() {
-    this.#sortPresenter.init();
     render(this.#pointsListComponent, this.#tripContainer);
   }
-
-  #resetSortForm = () => {
-    if (this.#sortPresenter) {
-      this.#sortPresenter.resetForm();
-    }
-  };
 
   #handleModelPointAdd = () => {
     this.#pointsListPresenter.unblockInterface();

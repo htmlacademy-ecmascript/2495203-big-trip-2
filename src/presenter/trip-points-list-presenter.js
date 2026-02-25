@@ -7,12 +7,13 @@ import TripPointAddingFormView from '../view/trip-point-adding-form-view.js';
 import PointPresenter from './point-presenter.js';
 import {
   sortByDateAsc,
-  sortByDurationAsc,
-  sortByPriceAsc
+  sortByDurationDesc,
+  sortByPriceDesc
 } from '../utils.js';
-import {EVT_KEYDOWN, KEY_ESCAPE, SORT_CRITERIA} from '../constants.js';
+import {EVT_KEYDOWN, FILTER, KEY_ESCAPE, NO_POINTS_MESSAGE, SORT_CRITERIA} from '../constants.js';
 import MessageView from '../view/message-view';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import SortPresenter from './sort-presenter.js';
 
 export default class TripPointsListPresenter {
   #listElement;
@@ -25,19 +26,23 @@ export default class TripPointsListPresenter {
   #pointPresenters = new Map();
   #currentSortCriteria = SORT_CRITERIA.START_DAY;
   #noPointsMessageView;
-  #resetSortForm;
   #interfaceBlocker;
+  #sortPresenter;
 
-  constructor({listElement, pointsModel, tripContainer, resetSortForm}) {
+  constructor({listElement, pointsModel, tripContainer}) {
     this.#listElement = listElement;
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
     this.#pointTypes = this.#pointsModel.pointTypes;
     this.#cities = this.#pointsModel.cities;
-    this.#resetSortForm = resetSortForm;
     this.#interfaceBlocker = new UiBlocker({
       lowerLimit: 0,
       upperLimit: 0
+    });
+    this.#sortPresenter = new SortPresenter({
+      tripContainer: this.#tripContainer,
+      handleSortChange: this.handleSortChange,
+      pointsModel: this.#pointsModel
     });
 
     this.#pointsModel.setPointEditObserver(this.#handleModelPointChange);
@@ -48,10 +53,10 @@ export default class TripPointsListPresenter {
   get points() {
     switch (this.#currentSortCriteria) {
       case SORT_CRITERIA.DURATION: {
-        return [...this.#pointsModel.tripPoints.sort(sortByDurationAsc)];
+        return [...this.#pointsModel.tripPoints.sort(sortByDurationDesc)];
       }
       case SORT_CRITERIA.PRICE: {
-        return [...this.#pointsModel.tripPoints.sort(sortByPriceAsc)];
+        return [...this.#pointsModel.tripPoints.sort(sortByPriceDesc)];
       }
       case SORT_CRITERIA.START_DAY: {
         return [...this.#pointsModel.tripPoints.sort(sortByDateAsc)];
@@ -75,8 +80,9 @@ export default class TripPointsListPresenter {
       onCancelButtonClick: this.#handleCancelButtonClick
     });
     this.#resetAllForms();
+    this.#pointsModel.changeFilter(FILTER.EVERYTHING);
     this.handleSortChange(SORT_CRITERIA.START_DAY);
-    this.#resetSortForm();
+    this.#sortPresenter.resetForm();
     render(this.#addingFormComponent, this.#listElement, RenderPosition.AFTERBEGIN);
     document.addEventListener(EVT_KEYDOWN, this.#escKeyDownHandler);
   }
@@ -127,12 +133,15 @@ export default class TripPointsListPresenter {
 
   #renderPoints(pointsData) {
     if (pointsData.length) {
+      this.#sortPresenter.init();
+
       pointsData.forEach((pointData) => {
         this.#renderPoint(pointData);
       });
       return;
     }
 
+    this.#sortPresenter.removeSortForm();
     this.#renderMessage(this.#pointsModel.currentFilter);
   }
 
@@ -161,7 +170,7 @@ export default class TripPointsListPresenter {
   };
 
   #renderMessage(filter) {
-    this.#noPointsMessageView = new MessageView({currentFilter: filter});
+    this.#noPointsMessageView = new MessageView({message: NO_POINTS_MESSAGE[filter.toUpperCase()]});
     render(this.#noPointsMessageView, this.#tripContainer);
   }
 

@@ -21,6 +21,10 @@ export const NO_POINTS_MESSAGE = {
   PRESENT: 'There are no present events now',
   PAST: 'There are no past events now',
 };
+export const LOADING_MESSAGE = {
+  PROCESS: 'Loading...',
+  ERROR: 'Failed to load latest route information'
+};
 export const ACTION = {
   SAVE: 'Save',
   SAVING: 'Saving...',
