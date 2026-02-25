@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {getIconSrcByEventType} from '../utils.js';
-import {SYMBOL} from '../constants';
+import {SYMBOL} from '../constants.js';
+import he from 'he';
 
 function getOffersTemplate(offersData) {
   if (!offersData.some(({checked}) => checked)) {
@@ -11,9 +12,9 @@ function getOffersTemplate(offersData) {
     `<ul class="event__selected-offers">
       ${offersData.map(({name, price, checked}) => checked ?
       `<li class="event__offer">
-          <span class="event__offer-title">${name}</span>
+          <span class="event__offer-title">${he.encode(name)}</span>
           ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
-          <span class="event__offer-price">${price}</span>
+          <span class="event__offer-price">${he.encode(String(price))}</span>
         </li>` :
       '')
       .join('')}
@@ -24,21 +25,21 @@ function getOffersTemplate(offersData) {
 function getTripPointTemplate(pointData) {
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="${pointData.htmlStartDate}">${pointData.formattedDate}</time>
+                <time class="event__date" datetime="${he.encode(pointData.htmlStartDate)}">${he.encode(pointData.formattedDate)}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="${getIconSrcByEventType(pointData.type.name)}" alt="${pointData.type.name}">
+                  <img class="event__type-icon" width="42" height="42" src="${he.encode(getIconSrcByEventType(pointData.type.name))}" alt="${he.encode(pointData.type.name)}">
                 </div>
-                <h3 class="event__title">${pointData.type.name} ${pointData.destination.cityName}</h3>
+                <h3 class="event__title">${he.encode(pointData.type.name)} ${he.encode(pointData.destination.cityName)}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${pointData.startDateISO}">${pointData.startTime}</time>
+                    <time class="event__start-time" datetime="${he.encode(pointData.startDateISO)}">${he.encode(pointData.startTime)}</time>
                     ${SYMBOL.MDASH}
-                    <time class="event__end-time" datetime="${pointData.endDateISO}">${pointData.endTime}</time>
+                    <time class="event__end-time" datetime="${he.encode(pointData.endDateISO)}">${he.encode(pointData.endTime)}</time>
                   </p>
-                  <p class="event__duration">${pointData.duration}</p>
+                  <p class="event__duration">${he.encode(pointData.duration)}</p>
                 </div>
                 <p class="event__price">
-                  ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="event__price-value">${pointData.price}</span>
+                  ${SYMBOL.EURO}${SYMBOL.NBSP}<span class="event__price-value">${he.encode(String(pointData.price))}</span>
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 ${pointData.type.options.length ? getOffersTemplate(pointData.type.options) : ''}

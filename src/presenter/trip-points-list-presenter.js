@@ -11,8 +11,8 @@ import {
   sortByPriceDesc
 } from '../utils.js';
 import {EVT_KEYDOWN, FILTER, KEY_ESCAPE, NO_POINTS_MESSAGE, SORT_CRITERIA} from '../constants.js';
-import MessageView from '../view/message-view';
-import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import MessageView from '../view/message-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import SortPresenter from './sort-presenter.js';
 
 export default class TripPointsListPresenter {

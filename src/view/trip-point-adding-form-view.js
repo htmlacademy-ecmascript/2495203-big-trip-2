@@ -8,7 +8,7 @@ import {
 import {nanoid} from 'nanoid';
 import he from 'he';
 import {initFlatpickr} from '../utils.js';
-import {ACTION, SYMBOL} from '../constants';
+import {ACTION, SYMBOL} from '../constants.js';
 
 function getDetailsTemplate(state) {
   if (!(state.type.options || state.destination)) {
@@ -24,7 +24,7 @@ function getDetailsTemplate(state) {
 }
 
 function getPhotosList({photos}) {
-  if (!photos) {
+  if (!photos?.length) {
     return;
   }
 
@@ -32,7 +32,7 @@ function getPhotosList({photos}) {
     `<div class="event__photos-container">
       <div class="event__photos-tape">
         ${photos.map((photo) => `
-            <img class="event__photo" src="${photo.src}" alt="${photo.description}">
+            <img class="event__photo" src="${he.encode(photo.src)}" alt="${he.encode(photo.description)}">
         `).join('')}
       </div>
     </div>`
@@ -47,15 +47,15 @@ function getOffers(offersData) {
         ${offersData.map(({id, name, price, alias, checked}) => `
           <div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden"
-            id="event-offer-${alias}"
+            id="event-offer-${he.encode(alias)}"
             type="checkbox"
-            name="event-offer-${alias}"
-            value="${id}"
+            name="event-offer-${he.encode(alias)}"
+            value="${he.encode(id)}"
             ${checked ? 'checked' : ''}>
-            <label class="event__offer-label" for="event-offer-${alias}">
-              <span class="event__offer-title">${name}</span>
+            <label class="event__offer-label" for="event-offer-${he.encode(alias)}">
+              <span class="event__offer-title">${he.encode(name)}</span>
               ${SYMBOL.PLUS}${SYMBOL.EURO}${SYMBOL.NBSP}
-              <span class="event__offer-price">${price}</span>
+              <span class="event__offer-price">${he.encode(String(price))}</span>
             </label>
           </div>
         `).join('')}
@@ -65,6 +65,10 @@ function getOffers(offersData) {
 }
 
 function getDescription(destination) {
+  if (!destination.description?.length) {
+    return '';
+  }
+
   return (
     `<section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -78,7 +82,7 @@ function getCitySuggestions(cities) {
   return (
     `<datalist id="destination-list-1">
         ${cities.map(({cityName}) => `
-        <option value="${cityName}"></option>
+        <option value="${he.encode(cityName)}"></option>
         `).join('')}
       </datalist>`
   );
@@ -91,8 +95,8 @@ function getEventTypesListTemplate(pointTypes) {
           <legend class="visually-hidden">Event type</legend>
           ${pointTypes.map(({id, name, capitalizedName}) => `
           <div class="event__type-item">
-            <input id="event-type-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
-            <label class="event__type-label  event__type-label--${name}" for="event-type-${id}">${capitalizedName}</label>
+            <input id="event-type-${he.encode(String(id))}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${he.encode(String(id))}">
+            <label class="event__type-label  event__type-label--${he.encode(name)}" for="event-type-${he.encode(String(id))}">${he.encode(capitalizedName)}</label>
           </div>
           `).join('')}
         </fieldset>
@@ -107,7 +111,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                 <div class="event__type-wrapper">
                   <label class="event__type  event__type-btn" for="event-type-toggle">
                     <span class="visually-hidden">Choose event type</span>
-                    <img class="event__type-icon" width="17" height="17" src="img/icons/${state.type.name}.png" alt="${state.type.name}">
+                    <img class="event__type-icon" width="17" height="17" src="img/icons/${he.encode(state.type.name)}.png" alt="${he.encode(state.type.name)}">
                   </label>
                   <input class="event__type-toggle  visually-hidden" id="event-type-toggle" type="checkbox">
 
@@ -116,13 +120,13 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
 
                 <div class="event__field-group  event__field-group--destination">
                   <label class="event__label  event__type-output" for="event-destination-1">
-                    ${state.type.name}
+                    ${he.encode(state.type.name)}
                   </label>
                   <input class="event__input  event__input--destination"
                   id="event-destination-1"
                   type="text"
                   name="event-destination"
-                  value="${state.destination ? state.destination.cityName : ''}"
+                  value="${state.destination ? he.encode(state.destination.cityName) : ''}"
                   list="destination-list-1"
                   autocomplete="off"
                   required>
@@ -135,14 +139,14 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                   id="event-start-time"
                   type="text"
                   name="event-start-time"
-                  value="${state.formattedStartDate ?? ''}">
+                  value="${state.formattedStartDate ? he.encode(state.formattedStartDate) : ''}">
                   ${(state.formattedStartDate && state.formattedEndDate) ? SYMBOL.MDASH : ''}
                   <label class="visually-hidden" for="event-end-time">To</label>
                   <input class="event__input  event__input--time"
                   id="event-end-time"
                   type="text"
                   name="event-end-time"
-                  value="${state.formattedEndDate ?? ''}">
+                  value="${state.formattedEndDate ? he.encode(state.formattedEndDate) : ''}">
                 </div>
 
                 <div class="event__field-group  event__field-group--price">
@@ -150,7 +154,7 @@ function getAddTripPointFormTemplate({state, pointTypes, cities}) {
                     <span class="visually-hidden">Price</span>
                     ${SYMBOL.EURO}
                   </label>
-                  <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${state.price}">
+                  <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(String(state.price))}">
                 </div>
 
                 <button class="event__save-btn  btn  btn--blue"
